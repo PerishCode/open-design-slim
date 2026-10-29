@@ -2,3 +2,11 @@ schemaVersion: 1
 guard:
   components:
     - packages/components
+runtime:
+  appid: io.perish.opendesignslim
+  carrier: 1
+  channel: stable
+  name: Open Design Slim
+  namespace: slim
+  scheme: opendesignslim
+  version: 0.1.0
