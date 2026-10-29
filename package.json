@@ -1,0 +1,20 @@
+{
+  "name": "open-design-slim",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.13.0",
+  "engines": {
+    "node": "~24"
+  },
+  "scripts": {
+    "guard": "pesuite guard",
+    "lint": "biome check .",
+    "format": "biome check --write ."
+  },
+  "devDependencies": {
+    "@perishcode/cli": "0.1.0",
+    "@biomejs/biome": "2.6.4",
+    "typescript": "7.0.2",
+    "vitest": "4.1.6"
+  }
+}
