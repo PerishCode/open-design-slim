@@ -9,12 +9,24 @@
   "scripts": {
     "guard": "pesuite guard",
     "lint": "biome check .",
-    "format": "biome check --write ."
+    "format": "biome check --write .",
+    "build": "node scripts/build.mjs",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "start": "electron apps/electron/dist/main.mjs",
+    "package": "node scripts/package.mjs",
+    "verify:skeleton": "node scripts/verify.mjs"
   },
   "devDependencies": {
-    "@perishcode/cli": "0.1.0",
+    "@perishcode/cli": "0.1.1",
     "@biomejs/biome": "2.6.4",
     "typescript": "7.0.2",
-    "vitest": "4.1.6"
+    "vitest": "4.1.6",
+    "@perishcode/runtime": "0.1.0",
+    "@perishcode/release": "0.1.0",
+    "@perishcode/pack": "0.1.0",
+    "@types/node": "24.12.2",
+    "electron": "41.3.0",
+    "esbuild": "0.28.0"
   }
 }

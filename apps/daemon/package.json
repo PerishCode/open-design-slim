@@ -1,0 +1,19 @@
+{
+  "name": "@perishcode/slim-daemon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -w build",
+    "test": "vitest run -c vitest.config.ts --passWithNoTests",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.tests.json"
+  },
+  "devDependencies": {
+    "@types/node": "24.12.2",
+    "typescript": "7.0.2",
+    "vitest": "4.1.6"
+  },
+  "dependencies": {
+    "@perishcode/runtime": "0.1.0"
+  }
+}

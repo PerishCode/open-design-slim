@@ -2,6 +2,8 @@ packages:
   - apps/*
   - packages/*
 minimumReleaseAgeExclude:
+  - "@perishcode/cli@0.1.0"
+  - "@perishcode/guard@0.1.0"
   - "@biomejs/biome@2.6.4"
   - "@biomejs/cli-android-arm64@2.6.4"
   - "@biomejs/cli-android-x64@2.6.4"
@@ -13,5 +15,19 @@ minimumReleaseAgeExclude:
   - "@biomejs/cli-linux-x64@2.6.4"
   - "@biomejs/cli-win32-arm64@2.6.4"
   - "@biomejs/cli-win32-x64@2.6.4"
-  - "@perishcode/cli@0.1.0"
-  - "@perishcode/guard@0.1.0"
+  - "@perishcode/cli@0.1.1"
+  - "@perishcode/guard@0.1.1"
+  - "@perishcode/protocol@0.1.0"
+  - "@perishcode/blob@0.1.0"
+  - "@perishcode/config@0.1.0"
+  - "@perishcode/release@0.1.0"
+  - "@perishcode/publish@0.1.0"
+  - "@perishcode/sidecar@0.1.0"
+  - "@perishcode/runtime@0.1.0"
+  - "@perishcode/electron@0.1.0"
+  - "@perishcode/pack@0.1.0"
+
+allowBuilds:
+  electron: true
+  esbuild: true
+  electron-winstaller: false
