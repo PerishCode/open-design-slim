@@ -136,12 +136,7 @@ it("keeps namespace inventory and reads committed instances after an interrupted
           registryAfter: hash(await readFile(registryFile)),
           interruptedSignal: child.signalCode,
           dataRetained: true,
-          unqualified: [
-            "recovery writes",
-            "live-child adoption",
-            "lifecycle sessions",
-            "four-unit control-plane convergence",
-          ],
+          unqualified: ["recovery writes", "live-child adoption", "four-unit control-plane convergence"],
         },
         null,
         2,
