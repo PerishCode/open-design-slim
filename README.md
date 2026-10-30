@@ -30,3 +30,9 @@ pnpm exec pesuite guard
 
 所有通用机制来自固定版本 registry 包，无相邻源码依赖。Web 不取得服务 token 或 Node 控制面 API。
 本阶段验收范围为本地内容与 unsigned macOS；签名、公网可信更新、多平台及完整中断恢复分别验收。
+
+## 生命周期会话验证
+
+独立消费 `@perishcode/sidecar` 0.5.0；daemon 的 sessions.test.ts 通过公开 Service.session / Client.session 验证批量编排、同作用域本地与 loopback 嵌套、并发排序、其他 channel 独立推进及过期上下文拒绝。
+真实控制端 SIGKILL 后会话保持 interrupted 并阻塞同 lane，manager 关闭返回 recovery required；再次 SIGKILL manager 后通过 readDirectory 只读观察保留事实。证据位于 `.artifacts/control/sessions.json`。
+会话不回滚外部动作、不超时抢占，不提供跨作用域事务。恢复写入、实例/资源使用关系和四单元控制面统一仍由 suite #10 推进；现有四单元运行时继续使用首版 SDK。

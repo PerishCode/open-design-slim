@@ -24,8 +24,8 @@ importers:
         specifier: 0.1.0
         version: 0.1.0
       '@perishcode/sidecar':
-        specifier: 0.4.0
-        version: 0.4.0
+        specifier: 0.5.0
+        version: 0.5.0
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
@@ -71,8 +71,8 @@ importers:
         specifier: 0.1.0
         version: 0.1.0
       '@perishcode/sidecar':
-        specifier: 0.4.0
-        version: 0.4.0
+        specifier: 0.5.0
+        version: 0.5.0
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
@@ -494,8 +494,8 @@ packages:
     resolution: {integrity: sha512-W3x8IgxTHgH5/s3ylG7dnTj1gQGk0bhlNbFtr4/NrhorY2ve//mffGghzEpmV1+H+rSddrPpkXpoXhTxvUPLgg==, tarball: https://npm.pkg.github.com/download/@perishcode/sidecar/0.1.0/7b5073f8573270f8c1be161ab86f77d0822af51a}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/sidecar@0.4.0':
-    resolution: {integrity: sha512-ZXm3us699ZbPjg1sZxqN4KzbbxDihEtrTkTIzA6hi9n5RxWhN396Ufdkn41YnL9T2OnSgaNKf/SJI4AdYUDl1w==, tarball: https://npm.pkg.github.com/download/@perishcode/sidecar/0.4.0/858a2b558911142e29ae8bf4bb1058248cc9302d}
+  '@perishcode/sidecar@0.5.0':
+    resolution: {integrity: sha512-6LYMV3eGu0v4sNE9ZNDHl67NzCeoqvX5GuYJCinzGrDnUzFq6eSg5L8MF2tMsUSHgVgan95QtV34LHepNFHPNw==, tarball: https://npm.pkg.github.com/download/@perishcode/sidecar/0.5.0/c8baf834fc07291e4a112ad2866d2e7957080c35}
     engines: {node: '>=24.0.0'}
 
   '@rolldown/binding-android-arm-eabi@1.2.15':
@@ -2315,7 +2315,7 @@ snapshots:
     dependencies:
       '@perishcode/protocol': 0.1.0
 
-  '@perishcode/sidecar@0.4.0':
+  '@perishcode/sidecar@0.5.0':
     dependencies:
       '@perishcode/protocol': 0.1.0
 
