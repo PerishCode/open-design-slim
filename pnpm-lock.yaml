@@ -12,8 +12,8 @@ importers:
         specifier: 2.6.4
         version: 2.6.4
       '@perishcode/cli':
-        specifier: 0.3.0
-        version: 0.3.0(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.4.0
+        version: 0.4.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/pack':
         specifier: 0.1.0
         version: 0.1.0(electron-builder-squirrel-windows@26.8.1)
@@ -93,8 +93,8 @@ importers:
         version: 0.1.0(electron@41.3.0)
     devDependencies:
       '@perishcode/cli':
-        specifier: 0.3.0
-        version: 0.3.0(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.4.0
+        version: 0.4.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/pack':
         specifier: 0.1.0
         version: 0.1.0(electron-builder-squirrel-windows@26.8.1)
@@ -451,8 +451,8 @@ packages:
     resolution: {integrity: sha512-KDCOARMnoMybtO4VsouKHy+wSv6vMR7J79i4zvrSUnyPAleawkQVFBE/DaZaPSd2gU5vMF0WiFzVzg2VsTYlFA==, tarball: https://npm.pkg.github.com/download/@perishcode/blob/0.1.0/613fea7d631104f7a6a5647f4b87577b7fd74aaa}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/cli@0.3.0':
-    resolution: {integrity: sha512-xet1F4MpXif3NMplI1hj07YWGri4z/a1nru285xeluJm3azXVVUE7+gKhzeRvWrIk+k5yH709EcpwqSPdpV3Tw==, tarball: https://npm.pkg.github.com/download/@perishcode/cli/0.3.0/2d9286ca93d40032bb3a48ba25745d1bc5554748}
+  '@perishcode/cli@0.4.0':
+    resolution: {integrity: sha512-5iIX7kFvSjdd4Ty59AFDu8+aJ3z85VH/iEMbBdi8xM5zIAgEKp6wFcIqEklAXwv4I1wji6wTGffpkyLcfXpOhw==, tarball: https://npm.pkg.github.com/download/@perishcode/cli/0.4.0/a01abb5a1d658bf72dd821ea39bd6b2081afc0db}
     engines: {node: '>=24'}
     hasBin: true
 
@@ -466,8 +466,8 @@ packages:
     peerDependencies:
       electron: 41.3.0
 
-  '@perishcode/guard@0.3.0':
-    resolution: {integrity: sha512-TNiR6Cf6HGREi73yRflhT3zQuotIapN6tVIBxq4kWnNWXPfv7BB2MKl0e9AO3FwVXPVbF/fH3YtzX6CIgOZrxQ==, tarball: https://npm.pkg.github.com/download/@perishcode/guard/0.3.0/3648919aa40f1aff938332246ad8d6751d09e0aa}
+  '@perishcode/guard@0.4.0':
+    resolution: {integrity: sha512-K5GQcrgAF6aGQW1Y5XJDdJ3LTkCNhN+EtC6CgwSPI39fjqPyQfLkBdnaZN4lfwOMq1ffTH8Oe7iSr7AaOOMXkg==, tarball: https://npm.pkg.github.com/download/@perishcode/guard/0.4.0/cfc3c957ca3bfd52a2e368e8b00376cc5d893c78}
     engines: {node: '>=24'}
 
   '@perishcode/pack@0.1.0':
@@ -2254,9 +2254,9 @@ snapshots:
     dependencies:
       '@perishcode/protocol': 0.1.0
 
-  '@perishcode/cli@0.3.0(electron-builder-squirrel-windows@26.8.1)':
+  '@perishcode/cli@0.4.0(electron-builder-squirrel-windows@26.8.1)':
     dependencies:
-      '@perishcode/guard': 0.3.0
+      '@perishcode/guard': 0.4.0
       '@perishcode/pack': 0.1.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/release': 0.1.0
       '@perishcode/runtime': 0.1.0
@@ -2274,7 +2274,7 @@ snapshots:
       '@perishcode/runtime': 0.1.0
       electron: 41.3.0
 
-  '@perishcode/guard@0.3.0':
+  '@perishcode/guard@0.4.0':
     dependencies:
       '@babel/parser': 8.0.8
       parse5: 8.0.1
