@@ -4,7 +4,7 @@ import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { channel, digest, namespace } from "@perishcode/protocol";
-import { type Attachment, Client, type Context, serve } from "@perishcode/sidecar";
+import { type Attachment, Client, type Context, Resources, serve } from "@perishcode/sidecar";
 
 import { it } from "vitest";
 
@@ -23,6 +23,7 @@ it("validates hosted control and managed resource teardown", async () => {
     service: "probe",
     generation: digest("hosted skeleton probe"),
   };
+  const nextIdentity = { ...identity, generation: digest("next hosted skeleton probe") };
   const http = createServer((_request, response) => response.end("slim static probe"));
   let address = "";
   let socketPath = "";
@@ -55,6 +56,9 @@ it("validates hosted control and managed resource teardown", async () => {
         },
       },
     });
+    await assert.rejects(serve(join(root, "contender.sock"), undefined, undefined, root), /held/);
+    await assert.rejects(Resources.open({ root, namespace: identity.namespace }), /held/);
+    cases.push("manager and namespace ownership are exclusive before touching existing resources");
     const peer = await client.connect<Methods>(identity);
     const description = await peer.call("describe", null);
     assert.deepEqual(description.identity, identity);
@@ -67,7 +71,18 @@ it("validates hosted control and managed resource teardown", async () => {
     assert.equal((await peer.probe()).phase, "failed");
     assert.equal((await stat(socketPath)).isSocket(), true);
     assert.equal((await stat(attachment.context.roots.runtime)).isDirectory(), true);
-    cases.push("failed drain retains authority and resources");
+    await assert.rejects(
+      server.expose({
+        identity: nextIdentity,
+        handlers: {},
+        lifecycle: {
+          initialize: async () => {},
+          stop: async () => {},
+        },
+      }),
+      /already owned/,
+    );
+    cases.push("failed drain retains authority and resources across generation replacement");
     failure = false;
     await peer.stop();
     await attachment.closed;
@@ -80,20 +95,24 @@ it("validates hosted control and managed resource teardown", async () => {
     });
     cases.push("explicit retry drains and retires temporary resources; persistent data retained");
     const replacement = await server.expose<{ echo: { input: string; output: string } }>({
-      identity,
+      identity: nextIdentity,
       handlers: { echo: (input) => input },
       lifecycle: { initialize: async () => {}, stop: async () => {} },
     });
     await attachment.close();
+    await assert.rejects(client.connect(identity), /not ready/);
     await assert.rejects(peer.stop(), /fenced/);
     assert.equal(
-      await (await client.connect<{ echo: { input: string; output: string } }>(identity)).call("echo", "replacement"),
+      await (await client.connect<{ echo: { input: string; output: string } }>(nextIdentity)).call(
+        "echo",
+        "replacement",
+      ),
       "replacement",
     );
     await replacement.close();
     const grants = (await client.resources(identity.namespace)).grants;
     assert.ok(grants.every((grant) => grant.scope === "namespace"));
-    cases.push("old incarnation cannot stop successor; no temporary resource grants remain");
+    cases.push("old generation/incarnation cannot stop successor; no temporary resource grants remain");
     await mkdir("../../.artifacts/control", { recursive: true });
     await writeFile(
       "../../.artifacts/control/receipt.json",
@@ -102,11 +121,14 @@ it("validates hosted control and managed resource teardown", async () => {
           schema: 1,
           result: "passed",
           identity,
+          nextIdentity,
+          replacementIncarnation: replacement.context.incarnation,
           incarnation: description.incarnation,
           pid: process.pid,
           cases,
           grants: grants.map(({ kind, scope }) => ({ kind, scope })),
-          scope: "registry consumer of hosted sidecar increment; no cross-process manager authority claim",
+          scope:
+            "registry consumer of exclusive ownership and hosted generation fencing; interrupted adoption remains unqualified",
         },
         null,
         2,
