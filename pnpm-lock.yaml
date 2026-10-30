@@ -12,8 +12,8 @@ importers:
         specifier: 2.6.4
         version: 2.6.4
       '@perishcode/cli':
-        specifier: 0.1.1
-        version: 0.1.1
+        specifier: 0.3.0
+        version: 0.3.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/pack':
         specifier: 0.1.0
         version: 0.1.0(electron-builder-squirrel-windows@26.8.1)
@@ -51,6 +51,9 @@ importers:
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
+      esbuild:
+        specifier: 0.28.0
+        version: 0.28.0
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -64,9 +67,18 @@ importers:
         specifier: 0.1.0
         version: 0.1.0
     devDependencies:
+      '@perishcode/protocol':
+        specifier: 0.1.0
+        version: 0.1.0
+      '@perishcode/sidecar':
+        specifier: 0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
+      esbuild:
+        specifier: 0.28.0
+        version: 0.28.0
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -80,12 +92,27 @@ importers:
         specifier: 0.1.0
         version: 0.1.0(electron@41.3.0)
     devDependencies:
+      '@perishcode/cli':
+        specifier: 0.3.0
+        version: 0.3.0(electron-builder-squirrel-windows@26.8.1)
+      '@perishcode/pack':
+        specifier: 0.1.0
+        version: 0.1.0(electron-builder-squirrel-windows@26.8.1)
+      '@perishcode/release':
+        specifier: 0.1.0
+        version: 0.1.0
+      '@perishcode/runtime':
+        specifier: 0.1.0
+        version: 0.1.0
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
       electron:
         specifier: 41.3.0
         version: 41.3.0
+      esbuild:
+        specifier: 0.28.0
+        version: 0.28.0
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -101,6 +128,9 @@ importers:
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
+      esbuild:
+        specifier: 0.28.0
+        version: 0.28.0
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -421,8 +451,8 @@ packages:
     resolution: {integrity: sha512-KDCOARMnoMybtO4VsouKHy+wSv6vMR7J79i4zvrSUnyPAleawkQVFBE/DaZaPSd2gU5vMF0WiFzVzg2VsTYlFA==, tarball: https://npm.pkg.github.com/download/@perishcode/blob/0.1.0/613fea7d631104f7a6a5647f4b87577b7fd74aaa}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/cli@0.1.1':
-    resolution: {integrity: sha512-OnN+dirrMYZg/CuDqvKqwrP9KcPd709OjNp3qen3Tp++3AoBDGb39hEhK4LSmD7qGRUlnuXdbltvkIFAaImjTQ==, tarball: https://npm.pkg.github.com/download/@perishcode/cli/0.1.1/c8951913c5f8fbd4191b8cefd37767acc5a7baa0}
+  '@perishcode/cli@0.3.0':
+    resolution: {integrity: sha512-xet1F4MpXif3NMplI1hj07YWGri4z/a1nru285xeluJm3azXVVUE7+gKhzeRvWrIk+k5yH709EcpwqSPdpV3Tw==, tarball: https://npm.pkg.github.com/download/@perishcode/cli/0.3.0/2d9286ca93d40032bb3a48ba25745d1bc5554748}
     engines: {node: '>=24'}
     hasBin: true
 
@@ -436,8 +466,8 @@ packages:
     peerDependencies:
       electron: 41.3.0
 
-  '@perishcode/guard@0.1.1':
-    resolution: {integrity: sha512-4w6yf1Jn2V4S8gHC4nj05BHRyGVcDl3tcMj1+HTDsY9jSYuEQCszrpx2Mc3dwtrzpPcsJhUQbX9DfCLdDAZYmg==, tarball: https://npm.pkg.github.com/download/@perishcode/guard/0.1.1/e81e2a4902f7593cea1361c0703c52a3ececb198}
+  '@perishcode/guard@0.3.0':
+    resolution: {integrity: sha512-TNiR6Cf6HGREi73yRflhT3zQuotIapN6tVIBxq4kWnNWXPfv7BB2MKl0e9AO3FwVXPVbF/fH3YtzX6CIgOZrxQ==, tarball: https://npm.pkg.github.com/download/@perishcode/guard/0.3.0/3648919aa40f1aff938332246ad8d6751d09e0aa}
     engines: {node: '>=24'}
 
   '@perishcode/pack@0.1.0':
@@ -2224,9 +2254,15 @@ snapshots:
     dependencies:
       '@perishcode/protocol': 0.1.0
 
-  '@perishcode/cli@0.1.1':
+  '@perishcode/cli@0.3.0(electron-builder-squirrel-windows@26.8.1)':
     dependencies:
-      '@perishcode/guard': 0.1.1
+      '@perishcode/guard': 0.3.0
+      '@perishcode/pack': 0.1.0(electron-builder-squirrel-windows@26.8.1)
+      '@perishcode/release': 0.1.0
+      '@perishcode/runtime': 0.1.0
+    transitivePeerDependencies:
+      - electron-builder-squirrel-windows
+      - supports-color
 
   '@perishcode/config@0.1.0':
     dependencies:
@@ -2238,7 +2274,7 @@ snapshots:
       '@perishcode/runtime': 0.1.0
       electron: 41.3.0
 
-  '@perishcode/guard@0.1.1':
+  '@perishcode/guard@0.3.0':
     dependencies:
       '@babel/parser': 8.0.8
       parse5: 8.0.1

@@ -4,15 +4,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm -w build",
-    "test": "vitest run -c vitest.config.ts --passWithNoTests",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.tests.json"
+    "lint": "biome check .",
+    "test": "vitest run -c vitest.config.ts",
+    "build": "node esbuild.config.mjs && tsc -p tsconfig.json --emitDeclarationOnly && tsc -p tsconfig.tests.json"
   },
   "devDependencies": {
     "@types/node": "24.12.2",
     "typescript": "7.0.2",
     "vitest": "4.1.6",
-    "electron": "41.3.0"
+    "electron": "41.3.0",
+    "esbuild": "0.28.0",
+    "@perishcode/runtime": "0.1.0",
+    "@perishcode/pack": "0.1.0",
+    "@perishcode/release": "0.1.0",
+    "@perishcode/cli": "0.3.0"
   },
   "dependencies": {
     "@perishcode/electron": "0.1.0"
