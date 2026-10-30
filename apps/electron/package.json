@@ -17,7 +17,7 @@
     "@perishcode/runtime": "0.1.0",
     "@perishcode/pack": "0.1.0",
     "@perishcode/release": "0.1.0",
-    "@perishcode/cli": "0.3.0"
+    "@perishcode/cli": "0.4.0"
   },
   "dependencies": {
     "@perishcode/electron": "0.1.0"
