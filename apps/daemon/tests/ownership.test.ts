@@ -119,6 +119,18 @@ it("consumes exclusive ownership, normal replacement and interrupted truth from 
           platform: process.platform,
           architecture: process.arch,
           cases,
+          contenders: contenders.map(({ reply }) => ({ status: reply.status, pid: reply.pid, error: reply.error })),
+          first: first.reply,
+          replacement: replacement.reply,
+          restart: { status: restart.reply.status, error: restart.reply.error },
+          firstExit: first.child.exitCode,
+          interruptedSignal: replacement.child.signalCode,
+          registryBeforeRestart: createHash("sha256").update(interrupted).digest("hex"),
+          registryAfterRestart: createHash("sha256")
+            .update(await readFile(registry))
+            .digest("hex"),
+          observedPortReusable: true,
+          dataRetained: true,
           unqualified: [
             "automatic interrupted adoption",
             "surviving managed child takeover",
