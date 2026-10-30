@@ -51,3 +51,17 @@ pnpm verify:skeleton
 
 本阶段是 unsigned macOS 骨架和本地内容激活验证。公网可信分发、签名／公证／安装器、其他平台进程树、
 系统级助手进程枚举与提交中的崩溃恢复仍未验收。
+
+## Hosted sidecar 增量验证
+
+```sh
+pnpm verify:control
+```
+
+从 registry 消费 @perishcode/sidecar 0.2.0，验证调用方自定义 RPC、受管端口/socket 转发、
+停止失败后保留资源、显式重试后的排空与释放、持久探针数据保留，以及旧句柄无法停止后继实例。
+结果写入 .artifacts/control/receipt.json，隔离探针目录在完成后清理。
+
+此探针是 [suite #10](https://github.com/PerishCode/electron-suite/issues/10) 的第一批增量消费，
+四单元运行时仍沿用首版 SDK。跨进程管理权威、重启接管和跨代生命周期串行化尚未完成；
+不将独立客户端通信等同于这些保证。整体消费者推进见 [#4](https://github.com/PerishCode/open-design-slim/issues/4)。

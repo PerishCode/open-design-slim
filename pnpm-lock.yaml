@@ -23,6 +23,9 @@ importers:
       '@perishcode/runtime':
         specifier: 0.1.0
         version: 0.1.0
+      '@perishcode/sidecar':
+        specifier: 0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
@@ -459,6 +462,10 @@ packages:
 
   '@perishcode/sidecar@0.1.0':
     resolution: {integrity: sha512-W3x8IgxTHgH5/s3ylG7dnTj1gQGk0bhlNbFtr4/NrhorY2ve//mffGghzEpmV1+H+rSddrPpkXpoXhTxvUPLgg==, tarball: https://npm.pkg.github.com/download/@perishcode/sidecar/0.1.0/7b5073f8573270f8c1be161ab86f77d0822af51a}
+    engines: {node: '>=24.0.0'}
+
+  '@perishcode/sidecar@0.2.0':
+    resolution: {integrity: sha512-SBN7tg/AlEKf7jamPZ9x5ssXhOV8oGlWzNswDbd6z0XMqKvERp+1fCiA0YHKAXueRIsoJHsYkhbWggaUDcBF1w==, tarball: https://npm.pkg.github.com/download/@perishcode/sidecar/0.2.0/fe1a218918e0a497bc7194a352215b72af5b632a}
     engines: {node: '>=24.0.0'}
 
   '@rolldown/binding-android-arm-eabi@1.2.15':
@@ -2076,7 +2083,7 @@ snapshots:
       fs-extra: 10.1.0
       isbinaryfile: 4.0.10
       minimist: 1.2.8
-      plist: 3.1.0
+      plist: 3.1.1
     transitivePeerDependencies:
       - supports-color
 
@@ -2099,7 +2106,7 @@ snapshots:
       dir-compare: 4.2.0
       fs-extra: 11.4.1
       minimatch: 9.0.9
-      plist: 3.1.0
+      plist: 3.1.1
     transitivePeerDependencies:
       - supports-color
 
@@ -2269,6 +2276,10 @@ snapshots:
       yaml: 2.9.1
 
   '@perishcode/sidecar@0.1.0':
+    dependencies:
+      '@perishcode/protocol': 0.1.0
+
+  '@perishcode/sidecar@0.2.0':
     dependencies:
       '@perishcode/protocol': 0.1.0
 
@@ -2484,8 +2495,7 @@ snapshots:
 
   '@xmldom/xmldom@0.8.15': {}
 
-  '@xmldom/xmldom@0.9.12':
-    optional: true
+  '@xmldom/xmldom@0.9.12': {}
 
   abbrev@4.0.0: {}
 
@@ -3293,14 +3303,14 @@ snapshots:
 
   node-abi@4.40.0:
     dependencies:
-      semver: 7.7.4
+      semver: 7.8.5
 
   node-addon-api@1.7.2:
     optional: true
 
   node-api-version@0.2.1:
     dependencies:
-      semver: 7.7.4
+      semver: 7.8.5
 
   node-gyp@12.4.0:
     dependencies:
@@ -3309,7 +3319,7 @@ snapshots:
       graceful-fs: 4.2.11
       nopt: 9.0.0
       proc-log: 6.1.0
-      semver: 7.7.4
+      semver: 7.8.5
       tar: 7.5.22
       tinyglobby: 0.2.17
       undici: 6.29.1
@@ -3365,7 +3375,6 @@ snapshots:
       '@xmldom/xmldom': 0.9.12
       base64-js: 1.5.1
       xmlbuilder: 15.1.1
-    optional: true
 
   postcss@8.5.32:
     dependencies:

@@ -37,3 +37,10 @@ Electron and Daemon have no redundant unit test fixtures; their actual startup/s
 the SDK tests and the product's packaged acceptance. Capsule and browser contract unit tests live in tests.
 Local candidate directories are explicit trusted test inputs. Signing, remote feeds,
 other platforms and crash-during-commit remain separate acceptance work.
+
+## Active capability increment
+
+The current roadmap is suite #10–#16 and slim #4. Start with sidecar resource authority.
+`pnpm verify:control` consumes published sidecar 0.2.0 for caller-defined hosted methods,
+managed port/socket forwarding and failed-stop ownership. The four-unit runtime remains on the first SDK.
+This probe does not prove cross-process manager authority or restart adoption; keep those gates open.
