@@ -6,7 +6,8 @@
 - Scope is electron/capsule/web/daemon skeletons and probes only. Do not migrate OpenDesign features, business APIs or data models.
 - Consume fixed @perishcode versions from GitHub Packages; do not copy suite mechanisms or use adjacent checkouts, workspace links or tarball overrides for delivery. Tokens belong in user .npmrc.
 - Public lifecycle capabilities use pesuite or the owning package APIs/tests. package.json scripts only contain lint/test/build; the root dispatches `pnpm -r --if-present run <same-name>`. Modules own their tools; no root callbacks, lifecycle hooks, shortcuts or scripts directories.
-- guard owns engineering compliance. Validate changed modules, direct root formatting/config checks and guard; retain actual acceptance evidence. Ownership 0.3 adds exclusive root/namespace authority and interrupted-state blocking; automatic restart adoption remains unqualified.
+- Use published managed APIs (Service/Client/Context or runtime adapters) for downstream lifecycle/resources. Do not assemble product management from raw launch/process scans/private ports or paths; persistent directory guarantees apply to Service-owned instances.
+- guard owns engineering compliance. Validate changed modules, direct root formatting/config checks and guard; retain actual acceptance evidence. Directory 0.4 adds persistent namespace/service inventory and read-only interrupted inspection; recovery writes and live-process adoption remain unqualified.
 
 ## Directory conventions
 
@@ -30,6 +31,7 @@
 | apps/capsule/src/index.ts                           | executed composition entry and injected resource probe             |
 | apps/web/src/index.ts / index.html                  | browser bridge and placeholder page                                |
 | apps/daemon/src/main.ts                             | published minimal daemon service                                   |
+| apps/daemon/tests/directory.test.ts                 | namespace continuity and interrupted read-only inventory           |
 | apps/daemon/tests/ownership.test.ts                 | registry ownership, normal replacement and real SIGKILL acceptance |
 | apps/daemon/tests/control.test.ts                   | hosted control and resource lifecycle acceptance                   |
 | apps/electron/tests/skeleton.test.ts                | opt-in real unsigned installed lifecycle acceptance                |
@@ -68,6 +70,7 @@ release composes verified local content using pesuite.yaml/runtime. pack consume
 
 `pnpm --filter @perishcode/slim-daemon test` covers caller-defined hosted RPC, managed port/socket forwarding, failed drain/retry and incarnation fencing. It records .artifacts/control/receipt.json.
 It also runs ownership.test.ts: real independent managers compete, normal drain permits replacement, SIGKILL blocks reopening and preserves interrupted truth. Evidence is .artifacts/control/ownership.json. Never delete authority/registry files to bypass recovery-required errors; explicit interrupted adoption is still upstream work.
+It also runs directory.test.ts: Service/Client.directory inventory for hosted and independent processes, namespace continuity across managers, and readDirectory after SIGKILL without authority/registry writes. Evidence is .artifacts/control/directory.json. NamespaceEntry.phase describes resource authority; instance phases are last committed facts and do not prove current PID liveness.
 On macOS with a desktop session, run `PESUITE_E2E=1 pnpm --filter @perishcode/slim-electron test` after installing and building.
 That opt-in test builds probe versions, invokes the formal release/pack capabilities, retains one installed host, verifies four changed contents, cold starts, ABI rejection, failed activation, explicit recovery and post-ready SIGKILL. Evidence and installed copies remain under .artifacts/skeleton.
 Ordinary pnpm test skips that installed test; it never implies that real installation acceptance ran.
@@ -76,4 +79,4 @@ Ordinary pnpm test skips that installed test; it never implies that real install
 
 Upgrade fixed registry versions only after suite publishes them. Verify archive integrity and resolved paths, frozen install, module checks, guard and the relevant actual lifecycle tests.
 Record source/consumer commits, package versions, commands, results and unqualified boundaries in slim #4 and the owning suite issue.
-The four-unit runtime still uses the first SDK; ownership/hosted 0.3 is a separate probe. Signing, authenticated remote feeds, other platforms, complete process census and crash-during-commit require their own evidence.
+The four-unit runtime still uses the first SDK; directory/ownership 0.4 is a separate probe. Signing, authenticated remote feeds, other platforms, complete process census and crash-during-commit require their own evidence.
