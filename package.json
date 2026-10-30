@@ -15,7 +15,8 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "start": "electron apps/electron/dist/main.mjs",
     "package": "node scripts/package.mjs",
-    "verify:skeleton": "node scripts/verify.mjs"
+    "verify:skeleton": "node scripts/verify.mjs",
+    "verify:control": "node scripts/control.mjs"
   },
   "devDependencies": {
     "@perishcode/cli": "0.1.1",
@@ -27,6 +28,7 @@
     "@perishcode/pack": "0.1.0",
     "@types/node": "24.12.2",
     "electron": "41.3.0",
-    "esbuild": "0.28.0"
+    "esbuild": "0.28.0",
+    "@perishcode/sidecar": "0.2.0"
   }
 }

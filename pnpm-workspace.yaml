@@ -2,6 +2,7 @@ packages:
   - apps/*
   - packages/*
 minimumReleaseAgeExclude:
+  - "@perishcode/sidecar@0.2.0"
   - "@perishcode/cli@0.1.0"
   - "@perishcode/guard@0.1.0"
   - "@biomejs/biome@2.6.4"
