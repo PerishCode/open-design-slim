@@ -1,46 +1,73 @@
 # open-design-slim
 
-Read [electron-suite #1](https://github.com/PerishCode/electron-suite/issues/1) for the shared engineering direction and [#3](https://github.com/PerishCode/electron-suite/issues/3) for guard delivery.
+## Meta rules
 
-Consume published `@perishcode` packages from GitHub Packages; do not copy suite rules, wrappers, or source, and do not rely on adjacent checkouts. The CLI entry is `pesuite guard`; repository configuration is `pesuite.yaml` under the `guard` namespace.
+- [suite #1](https://github.com/PerishCode/electron-suite/issues/1) owns the shared direction and stays Open. [slim #4](https://github.com/PerishCode/open-design-slim/issues/4) owns current consumer acceptance; suite #10–#16 own the mechanisms.
+- Scope is electron/capsule/web/daemon skeletons and probes only. Do not migrate OpenDesign features, business APIs or data models.
+- Consume fixed @perishcode versions from GitHub Packages; do not copy suite mechanisms or use adjacent checkouts, workspace links or tarball overrides for delivery. Tokens belong in user .npmrc.
+- Public lifecycle capabilities use pesuite or the owning package APIs/tests. package.json scripts only contain lint/test/build; the root dispatches `pnpm -r --if-present run <same-name>`. Modules own their tools; no root callbacks, lifecycle hooks, shortcuts or scripts directories.
+- guard owns engineering compliance. Validate changed modules, direct root formatting/config checks and guard; retain actual acceptance evidence. Hosted 0.2 does not prove cross-process authority or restart adoption.
 
-Keep GitHub Packages tokens only in user-level npm configuration. Repository `.npmrc` contains registry routing only.
+## Directory conventions
 
-- `apps/`: product applications; `packages/`: product-owned shared capabilities.
-- Each workspace package is a module. Its root is depth 0; src/tests start at 1.
-- Directory depth <=5, direct children <=8. Tests obey the same rules.
-- Source/test files <=500 physical lines. Tests live at `tests/**/*.test.ts`.
-- Only exact configured components paths are exempt from width; only `packages/components/**/*.less` may define stylesheets.
-- Modules own independent source/test tsconfigs; test aliases point @ to src.
-- Use TypeScript 7, Vitest and Biome. Pin external dependencies to x.y.z and local ones to workspace:*.
-- Run `pnpm guard` and `pnpm lint` after changes; add module build/test/typecheck validation when product modules exist.
+- apps/electron is the stable host, apps/capsule the composition entry, apps/web a static browser probe, apps/daemon a local service probe. packages is reserved for product-owned shared modules.
+- Modules use src and sibling tests/**/*.test.ts, independent tsconfigs, and module-owned tool configs.
+- Brief scale: source <=500 lines; module depth <=5 and width <=8; components width exemption only; styles confined to packages/components/**/*.less. TS7/Vitest/Biome and exact external versions remain required.
+- These summaries aid navigation; guard configuration and findings determine compliance.
 
-Do not close electron-suite #1 for a partial delivery.
+## Core file index
 
-## Current scope: four-unit skeleton only
+| File or location                                    | Responsibility                                                     |
+| --------------------------------------------------- | ------------------------------------------------------------------ |
+| package.json / pnpm-workspace.yaml / pnpm-lock.yaml | three standard dispatchers, module membership and registry closure |
+| pesuite.yaml / biome.json / .npmrc                  | guard/runtime identity, formatter/linter policy, registry routing  |
+| apps/*/esbuild.config.mjs                           | each module's own build, with no call back to the root             |
+| apps/electron/src/main.ts                           | published host adapter bootstrap                                   |
+| apps/capsule/src/index.ts                           | executed composition entry and injected resource probe             |
+| apps/web/src/index.ts / index.html                  | browser bridge and placeholder page                                |
+| apps/daemon/src/main.ts                             | published minimal daemon service                                   |
+| apps/daemon/tests/control.test.ts                   | hosted control and resource lifecycle acceptance                   |
+| apps/electron/tests/skeleton.test.ts                | opt-in real unsigned installed lifecycle acceptance                |
+| .artifacts                                          | generated seed, package, installed copies and execution receipts   |
 
-Read [slim #2](https://github.com/PerishCode/open-design-slim/issues/2),
-[suite #7](https://github.com/PerishCode/electron-suite/issues/7) and
-[suite #8](https://github.com/PerishCode/electron-suite/issues/8).
-Do not migrate any concrete OpenDesign feature, business API or data model in this phase.
+## Iteration workflows
 
-- `apps/electron`: stable installed host entry; delegates mechanisms to the published Electron adapter.
-- `apps/capsule`: product composition entry; consumes injected resources and declares readiness.
-- `apps/web`: static placeholder and browser/daemon communication probe. No separate SSR process.
-- `apps/daemon`: minimal health/state probe; generic server and lifecycle come from published runtime.
-- `scripts/`: thin build/package entries and product integration acceptance, no duplicated runtime algorithms.
+### Local environment
 
-Product declarations live under `runtime:` in pesuite.yaml.
-Run build, test, typecheck, lint and guard before delivery.
-On macOS with a desktop session, run `pnpm verify:skeleton` for real packaged acceptance.
-Electron and Daemon have no redundant unit test fixtures; their actual startup/stop is covered by
-the SDK tests and the product's packaged acceptance. Capsule and browser contract unit tests live in tests.
-Local candidate directories are explicit trusted test inputs. Signing, remote feeds,
-other platforms and crash-during-commit remain separate acceptance work.
+Use Node24 and pnpm11.13.0. Configure package read credentials in user .npmrc. Run `pnpm install --frozen-lockfile`, then `pnpm build` explicitly.
+Build includes both source and test type checking. Installation does not trigger project aggregation.
 
-## Active capability increment
+### Local debugging
 
-The current roadmap is suite #10–#16 and slim #4. Start with sidecar resource authority.
-`pnpm verify:control` consumes published sidecar 0.2.0 for caller-defined hosted methods,
-managed port/socket forwarding and failed-stop ownership. The four-unit runtime remains on the first SDK.
-This probe does not prove cross-process manager authority or restart adoption; keep those gates open.
+Build modules, prepare the seed using the content command below, then run `pnpm exec electron apps/electron/dist/main.mjs`.
+The page must reach ready through actual Capsule/Web/Daemon execution. PESUITE_DATA selects isolated data; PESUITE_PROBE=1 and PESUITE_RECEIPT select the existing host probe mode. Unified inspect/serve remain upstream #11/#12 work.
+
+### Local build and standard checks
+
+Use `pnpm --filter @perishcode/slim-<unit> build|test|lint` for module iteration.
+At repository scope run `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm exec biome check .`, and `pnpm exec pesuite guard`.
+Format with `pnpm exec biome check --write .`; there are no typecheck/format/guard aliases.
+
+### Content generation and packaging
+
+After the modules have built:
+
+```sh
+pnpm exec pesuite release --capsule apps/capsule/dist --daemon apps/daemon/dist --web apps/web/dist --blob probe=apps/capsule/dist/probe.bin --output .artifacts/seed
+pnpm exec pesuite pack --carrier apps/electron/dist --seed .artifacts/seed --output .artifacts/package --receipt .artifacts/package.json
+```
+
+release composes verified local content using pesuite.yaml/runtime. pack consumes those exact seed bytes and is currently unsigned macOS. Neither command implicitly builds the modules. PESUITE_BUILD creates changed probe content during module build.
+
+### Local end-to-end verification
+
+`pnpm --filter @perishcode/slim-daemon test` covers caller-defined hosted RPC, managed port/socket forwarding, failed drain/retry and incarnation fencing. It records .artifacts/control/receipt.json.
+On macOS with a desktop session, run `PESUITE_E2E=1 pnpm --filter @perishcode/slim-electron test` after installing and building.
+That opt-in test builds probe versions, invokes the formal release/pack capabilities, retains one installed host, verifies four changed contents, cold starts, ABI rejection, failed activation, explicit recovery and post-ready SIGKILL. Evidence and installed copies remain under .artifacts/skeleton.
+Ordinary pnpm test skips that installed test; it never implies that real installation acceptance ran.
+
+### Distribution and handoff
+
+Upgrade fixed registry versions only after suite publishes them. Verify archive integrity and resolved paths, frozen install, module checks, guard and the relevant actual lifecycle tests.
+Record source/consumer commits, package versions, commands, results and unqualified boundaries in slim #4 and the owning suite issue.
+The four-unit runtime still uses the first SDK; hosted 0.2 is a separate probe. Signing, authenticated remote feeds, other platforms, complete process census and crash-during-commit require their own evidence.
