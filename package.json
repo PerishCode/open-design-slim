@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.4",
-    "@perishcode/cli": "0.5.3",
+    "@perishcode/cli": "0.5.4",
     "@perishcode/pack": "0.2.0",
     "@perishcode/release": "0.4.1",
     "@perishcode/runtime": "0.1.0",
@@ -23,6 +23,6 @@
     "esbuild": "0.28.0",
     "typescript": "7.0.2",
     "vitest": "4.1.6",
-    "@perishcode/pipeline": "0.1.3"
+    "@perishcode/pipeline": "0.1.4"
   }
 }
