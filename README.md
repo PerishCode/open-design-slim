@@ -35,21 +35,28 @@ pnpm exec pesuite guard
 
 独立消费 `@perishcode/sidecar` 0.5.0；daemon 的 sessions.test.ts 通过公开 Service.session / Client.session 验证批量编排、同作用域本地与 loopback 嵌套、并发排序、其他 channel 独立推进及过期上下文拒绝。
 真实控制端 SIGKILL 后会话保持 interrupted 并阻塞同 lane，manager 关闭返回 recovery required；再次 SIGKILL manager 后通过 readDirectory 只读观察保留事实。证据位于 `.artifacts/control/sessions.json`。
-会话不回滚外部动作、不超时抢占，不提供跨作用域事务。恢复写入、实例/资源使用关系和四单元控制面统一仍由 suite #10 推进；现有四单元运行时继续使用首版 SDK。
+会话不回滚外部动作、不超时抢占，不提供跨作用域事务。恢复写入、实例/资源使用关系和四单元控制面统一仍由 suite #10 推进；四单元 runtime/electron 0.2 的 factory SDK 交付见 suite #38。
 
 ## 渠道身份验证
 
 通过 registry 固定消费 release 0.2.0，apps/capsule/tests/channel.test.ts 使用 slim 自己的产品身份验证 stable、beta 与自定义渠道的版本生成、安装身份、metadata 和 emit/read roundtrip。版本与 channel 不一致或发布 local 时拒绝；证据在 .artifacts/channel/receipt.json。
-channel 与 namespace 共同确定资源 factory；当前 sidecar 0.5 仍有 namespace-only allocator 缺口，四单元 SDK 的 factory 接入尚未完成。渠道纠偏与后续验收见 suite #28；现有 probe 仅证明所执行的契约。
+channel 与 namespace 共同确定资源 factory；sidecar 0.6 已提供 factory allocator，runtime/electron 0.2 接入该边界。渠道纠偏与后续验收见 suite #28；现有 probe 仅证明所执行的契约。
 
 ## Factory 资源边界验证
 
 sidecar 0.6.0 / protocol 0.3.0 的独立 registry probe 使用 Service.factory/Client.factory，将 channel+namespace 绑定到资源、实例、会话与 binding。相同 namespace/service/resource 名的 stable/beta 隔离，generation 与正常 manager 更替保留持久数据，跨 factory 租约/forward 拒绝；资源 scope 使用 factory。证据在 .artifacts/control/factory.json。
 旧 namespace-only schema-1 目录通过 readLegacyDirectory 显式只读检查，不猜测 stable，也不隐式迁移；哈希不变证据在 .artifacts/control/legacy.json。现有真实独立进程/SIGKILL probes 同时覆盖新 factory 记录，中断 lane 的资源写入也拒绝。
-四单元已发布 SDK 仍使用固定旧依赖；factory probe 不代表新 SDK 已接入。root manager 故障域、恢复写入、存活子进程接管、资源使用关系与完整渠道发布编排继续见 suite #28/#30。
+四单元已发布 runtime/electron 0.2 接入 sidecar 0.6/release 0.4.1，CLI 0.6 使用相同 SDK。root manager 故障域、恢复写入、存活子进程接管、资源使用关系与完整渠道发布编排继续见 suite #28/#30。
 
 ## 共享构建分发入口
 
 产品只声明 pesuite.yaml/pipeline 的四单元模块路径和 blob 输入。固定版本 CLI 提供 version/build/check/pack/publish；--channel 只选择身份，质量关卡由 stable.release.yml 与 channel.release.yml 显式编排。每个 run 只有短 pesuite 调用，业务实现全部在 electron-suite。
 本地示例：`pnpm exec pesuite build --channel preview --number 1`，随后 `pesuite pack --channel preview --platform mac`；policy/tests/artifacts/installed 是独立 check gate。实际命令与边界见 AGENTS.md。
 两个 workflow 默认 publish=false；实验流程选择三个原生平台打包，正式流程在 macOS 额外选择 policy/tests/installed。当前产物 unsigned；打包通过不代表签名、公证、其他平台安装启动或远程更新验收完成。发布能力先上传 draft，再按显式模式提升，不覆盖已有 tag；没有为验证工具而公开发行产品版本。
+
+
+runtime/electron 0.2 的运行收据包含 factory scope 和 sidecar directory 中的实际 daemon 进程身份。
+apps/electron/tests/factory.test.ts 验证同管理根、同 namespace 的 stable/beta 隔离和跨版本数据连续。
+PESUITE_E2E=1 的安装验收保留同一个宿主，验证四类内容更新、冷启动、失败激活和显式 binding 恢复。
+真实 SIGKILL 后 daemon 随父管道关闭，manager 保留 interrupted 事实；再次启动拒绝，且 manager/factory 字节不变。
+该拒绝是新 SDK 的约束，不提供 manager 恢复或旧 namespace 数据迁移；不得删除权威文件绕过。

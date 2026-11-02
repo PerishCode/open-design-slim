@@ -14,12 +14,13 @@
     "vitest": "4.1.6",
     "electron": "41.3.0",
     "esbuild": "0.28.0",
-    "@perishcode/runtime": "0.1.0",
-    "@perishcode/pack": "0.1.0",
-    "@perishcode/release": "0.1.0",
-    "@perishcode/cli": "0.5.4"
+    "@perishcode/runtime": "0.2.0",
+    "@perishcode/pack": "0.2.0",
+    "@perishcode/release": "0.4.1",
+    "@perishcode/cli": "0.6.0",
+    "@perishcode/sidecar": "0.6.0"
   },
   "dependencies": {
-    "@perishcode/electron": "0.1.0"
+    "@perishcode/electron": "0.2.0"
   }
 }

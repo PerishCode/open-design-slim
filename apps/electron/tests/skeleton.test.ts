@@ -7,6 +7,7 @@ import { promisify } from "node:util";
 import { compose } from "@perishcode/release";
 import type { Receipt } from "@perishcode/runtime";
 import { readProduct, writeProduct } from "@perishcode/runtime";
+import { readDirectory } from "@perishcode/sidecar";
 import { it } from "vitest";
 
 it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
@@ -138,6 +139,19 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
       const stop = JSON.parse(await readFile(`${receipt}.stop.json`, "utf8"));
       assert.equal(result.generation, result.daemon.generation);
       assert.equal(result.nonce, result.daemon.nonce);
+      assert.equal(result.factory.channel, first.manifest.channel);
+      assert.ok(
+        result.directory.instances.some(
+          (instance: Receipt["directory"]["instances"][number]) =>
+            instance.kind === "process" &&
+            instance.service === "daemon" &&
+            instance.phase === "ready" &&
+            instance.pid === result.daemon.pid &&
+            instance.channel === result.factory.channel &&
+            instance.namespace === result.factory.namespace &&
+            instance.generation === result.generation,
+        ),
+      );
       assert.equal(stop.status, "stopped");
       assert.deepEqual(stop.survivors, []);
       assert.equal(alive(result.daemon.pid), false);
@@ -235,8 +249,21 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
     const deadline = Date.now() + 5000;
     while (alive(crash.daemon.pid) && Date.now() < deadline) await new Promise((done) => setTimeout(done, 50));
     assert.equal(alive(crash.daemon.pid), false, "daemon survived parent SIGKILL");
-    const afterCrash = await launch("after-crash");
-    assert.equal(afterCrash.generation, second.envelope.digest);
+    const resourceTruth = async () => ({
+      manager: createHash("sha256")
+        .update(await readFile(join(state, "manager.sqlite")))
+        .digest("hex"),
+      factories: await fingerprint(join(state, "factories")),
+    });
+    const interruptedBefore = await resourceTruth();
+    const interrupted = await readDirectory(state);
+    assert.equal(interrupted.manager.phase, "interrupted");
+    assert.ok(
+      interrupted.instances.some((instance) => instance.pid === crash.daemon.pid && instance.phase === "ready"),
+    );
+    await launch("after-crash-blocked", {}, 1, "recovery required");
+    assert.deepEqual(await resourceTruth(), interruptedBefore, "blocked reopen rewrote interrupted resource truth");
+    assert.deepEqual(await readDirectory(state), interrupted);
     const physicalAfter = await fingerprint(app);
     assert.equal(physicalAfter, physicalBefore, "installed host bytes changed during content activation");
     const receipt = {
@@ -254,7 +281,8 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
       initial,
       update,
       recovered,
-      afterCrash,
+      interrupted,
+      reopenBlocked: true,
       crash,
       cases,
       steps,
