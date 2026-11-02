@@ -36,3 +36,8 @@ pnpm exec pesuite guard
 独立消费 `@perishcode/sidecar` 0.5.0；daemon 的 sessions.test.ts 通过公开 Service.session / Client.session 验证批量编排、同作用域本地与 loopback 嵌套、并发排序、其他 channel 独立推进及过期上下文拒绝。
 真实控制端 SIGKILL 后会话保持 interrupted 并阻塞同 lane，manager 关闭返回 recovery required；再次 SIGKILL manager 后通过 readDirectory 只读观察保留事实。证据位于 `.artifacts/control/sessions.json`。
 会话不回滚外部动作、不超时抢占，不提供跨作用域事务。恢复写入、实例/资源使用关系和四单元控制面统一仍由 suite #10 推进；现有四单元运行时继续使用首版 SDK。
+
+## 渠道身份验证
+
+通过 registry 固定消费 release 0.2.0，apps/capsule/tests/channel.test.ts 使用 slim 自己的产品身份验证 stable、beta 与自定义渠道的版本生成、安装身份、metadata 和 emit/read roundtrip。版本与 channel 不一致或发布 local 时拒绝；证据在 .artifacts/channel/receipt.json。
+channel 与 namespace 共同确定资源 factory；当前 sidecar 0.5 仍有 namespace-only allocator 缺口，四单元 SDK 的 factory 接入尚未完成。渠道纠偏与后续验收见 suite #28；现有 probe 仅证明所执行的契约。
