@@ -18,14 +18,14 @@ importers:
         specifier: 0.1.0
         version: 0.1.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/release':
-        specifier: 0.2.0
-        version: 0.2.0
+        specifier: 0.3.0
+        version: 0.3.0
       '@perishcode/runtime':
         specifier: 0.1.0
         version: 0.1.0
       '@perishcode/sidecar':
-        specifier: 0.5.0
-        version: 0.5.0
+        specifier: 0.6.0
+        version: 0.6.0
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
@@ -49,8 +49,8 @@ importers:
         version: 0.1.0
     devDependencies:
       '@perishcode/release':
-        specifier: 0.2.0
-        version: 0.2.0
+        specifier: 0.3.0
+        version: 0.3.0
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
@@ -71,11 +71,14 @@ importers:
         version: 0.1.0
     devDependencies:
       '@perishcode/protocol':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.3.0
+        version: 0.3.0
+      '@perishcode/release':
+        specifier: 0.3.0
+        version: 0.3.0
       '@perishcode/sidecar':
-        specifier: 0.5.0
-        version: 0.5.0
+        specifier: 0.6.0
+        version: 0.6.0
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
@@ -463,8 +466,8 @@ packages:
     resolution: {integrity: sha512-dnxc+2Kqly2ReERasfNCloL8gDQlKD+JCy1zIyctfDPYbWhuaIKsZERH51Jq2biB77fLXwjLAdU+d04edcPFfQ==, tarball: https://npm.pkg.github.com/download/@perishcode/config/0.1.0/61245adae6459407d20f94b2a5ef6c9a178510ae}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/config@0.2.0':
-    resolution: {integrity: sha512-ypgZUj0uQiPced5uuddcGYET25dr/79+bMjET1TCqJRil3fE8dxL8NDGwzUAVXBP+IpuWOQXLN/L1P8MEzIgxw==, tarball: https://npm.pkg.github.com/download/@perishcode/config/0.2.0/874fb8db5d3959a2d033db036e49395433f43111}
+  '@perishcode/config@0.3.0':
+    resolution: {integrity: sha512-EbDP0yCPbaSFGhQt/F5yA+e7R9+x8HE6xXqOovs+QyFF99YHGjV+9I8doplqCR5EzAiwhhY2NqV2oiSERkze7A==, tarball: https://npm.pkg.github.com/download/@perishcode/config/0.3.0/1f88f2afadbc0273243b54c7b9bb409c40525de6}
     engines: {node: '>=24.0.0'}
 
   '@perishcode/electron@0.1.0':
@@ -485,8 +488,8 @@ packages:
     resolution: {integrity: sha512-loDpp1HBPAiIm0SbXWX4dPjiwjv9ExDQb+SKw/tZydKC2qlgG44C/WTM2Ro7FjN09lkiwI5kARDzUu5h3zf0hQ==, tarball: https://npm.pkg.github.com/download/@perishcode/protocol/0.1.0/d5ecd46f73e2fb30304b600879a7d1d07bdff1f0}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/protocol@0.2.0':
-    resolution: {integrity: sha512-A3dDApPCnOEVEuwZyKzEAvx2nlcL6wv62F3BaOXdFmQRoZg6vC/Dkd4Ob9PgxgqxupSSuZNtKapHOPPp2hmu0w==, tarball: https://npm.pkg.github.com/download/@perishcode/protocol/0.2.0/6cf8d737474dc5dd9b8106d45e9b4377fe0f7af3}
+  '@perishcode/protocol@0.3.0':
+    resolution: {integrity: sha512-+I3xvZtEoGmQZz4zHiJL/BVgQMVTzLasJbKdcM4fxneDV3nuEOIIinJsa4QgP257TY1fNCg5PYrl9tUGiSlfUA==, tarball: https://npm.pkg.github.com/download/@perishcode/protocol/0.3.0/e2617566b329906ecb40ec29081e734ed5955600}
     engines: {node: '>=24.0.0'}
 
   '@perishcode/publish@0.1.0':
@@ -497,8 +500,8 @@ packages:
     resolution: {integrity: sha512-lYIcoa30EW6PtEGlRIRdaDo0HbkCm2rjth5B4fOH9Jz/DoILAxdy71hZCOYXqM2skO6VtBKzqECR7eP71loAFA==, tarball: https://npm.pkg.github.com/download/@perishcode/release/0.1.0/b36aaeaefc692e2b991b37e3c49eb9bf75d390c5}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/release@0.2.0':
-    resolution: {integrity: sha512-PYeuv2aAb/WVstK0wSqDAHp8nI7U/G3IhhLwi38F1/z3oaKWez2aGzWTenw+3NFt6R+1yk/iP0xM5Ny1eJfS5A==, tarball: https://npm.pkg.github.com/download/@perishcode/release/0.2.0/2ac6eaba0ad46d482a90e4a3d306ab910a654d1b}
+  '@perishcode/release@0.3.0':
+    resolution: {integrity: sha512-Xa7iWSsvHp9X7iMb1DxOfU8zsodsJRyruOl+qsHXw/AX/ObEkIkQP4yvytVJyE/ajxASrMDxNZgn8Qce/dTWxQ==, tarball: https://npm.pkg.github.com/download/@perishcode/release/0.3.0/4972f5f0935c411538ad75c7b98220120e23603b}
     engines: {node: '>=24.0.0'}
 
   '@perishcode/runtime@0.1.0':
@@ -509,8 +512,8 @@ packages:
     resolution: {integrity: sha512-W3x8IgxTHgH5/s3ylG7dnTj1gQGk0bhlNbFtr4/NrhorY2ve//mffGghzEpmV1+H+rSddrPpkXpoXhTxvUPLgg==, tarball: https://npm.pkg.github.com/download/@perishcode/sidecar/0.1.0/7b5073f8573270f8c1be161ab86f77d0822af51a}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/sidecar@0.5.0':
-    resolution: {integrity: sha512-6LYMV3eGu0v4sNE9ZNDHl67NzCeoqvX5GuYJCinzGrDnUzFq6eSg5L8MF2tMsUSHgVgan95QtV34LHepNFHPNw==, tarball: https://npm.pkg.github.com/download/@perishcode/sidecar/0.5.0/c8baf834fc07291e4a112ad2866d2e7957080c35}
+  '@perishcode/sidecar@0.6.0':
+    resolution: {integrity: sha512-C/ES2HwL9FHDMuRE3QkayokLupLuDv9CNHNIMVqBIyl9rP3DirFmKpxynxRWdMbSWXLbM+QINMJu+JhBJJFc9A==, tarball: https://npm.pkg.github.com/download/@perishcode/sidecar/0.6.0/73e9b2ebc7e0f1570e04d6d7ebee7e8d26f48df5}
     engines: {node: '>=24.0.0'}
 
   '@rolldown/binding-android-arm-eabi@1.2.15':
@@ -2283,9 +2286,9 @@ snapshots:
     dependencies:
       '@perishcode/protocol': 0.1.0
 
-  '@perishcode/config@0.2.0':
+  '@perishcode/config@0.3.0':
     dependencies:
-      '@perishcode/protocol': 0.2.0
+      '@perishcode/protocol': 0.3.0
 
   '@perishcode/electron@0.1.0(electron@41.3.0)':
     dependencies:
@@ -2311,7 +2314,7 @@ snapshots:
 
   '@perishcode/protocol@0.1.0': {}
 
-  '@perishcode/protocol@0.2.0': {}
+  '@perishcode/protocol@0.3.0': {}
 
   '@perishcode/publish@0.1.0':
     dependencies:
@@ -2323,10 +2326,10 @@ snapshots:
       '@perishcode/config': 0.1.0
       '@perishcode/protocol': 0.1.0
 
-  '@perishcode/release@0.2.0':
+  '@perishcode/release@0.3.0':
     dependencies:
-      '@perishcode/config': 0.2.0
-      '@perishcode/protocol': 0.2.0
+      '@perishcode/config': 0.3.0
+      '@perishcode/protocol': 0.3.0
 
   '@perishcode/runtime@0.1.0':
     dependencies:
@@ -2341,9 +2344,9 @@ snapshots:
     dependencies:
       '@perishcode/protocol': 0.1.0
 
-  '@perishcode/sidecar@0.5.0':
+  '@perishcode/sidecar@0.6.0':
     dependencies:
-      '@perishcode/protocol': 0.1.0
+      '@perishcode/protocol': 0.3.0
 
   '@rolldown/binding-android-arm-eabi@1.2.15':
     optional: true

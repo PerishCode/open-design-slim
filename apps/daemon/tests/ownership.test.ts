@@ -17,9 +17,9 @@ let service;
 try {
   service=await serve(process.argv[2],undefined,undefined,process.argv[1]);
   const client=new Client(service.endpoint,service.authority);
-  const data=await client.grant('slim',{kind:'data',name:'probe',scope:'namespace'});
-  const staging=await client.grant('slim',{kind:'staging',name:'probe',owner:'attempt',scope:'attempt'});
-  const port=await client.grant('slim',{kind:'port',name:'probe',owner:'attempt',scope:'attempt'});
+  const data=await client.grant({channel:'stable',namespace:'slim'},{kind:'data',name:'probe',scope:'factory'});
+  const staging=await client.grant({channel:'stable',namespace:'slim'},{kind:'staging',name:'probe',owner:'attempt',scope:'attempt'});
+  const port=await client.grant({channel:'stable',namespace:'slim'},{kind:'port',name:'probe',owner:'attempt',scope:'attempt'});
   await writeFile(join(data.value,'probe.json'),JSON.stringify({retained:true}));
   console.log(JSON.stringify({status:'owned',pid:process.pid,data:data.value,staging:staging.value,port:port.value}));
   process.stdin.resume();
@@ -71,7 +71,7 @@ it("consumes exclusive ownership, normal replacement and interrupted truth from 
     assert.equal(contenders.filter(({ reply }) => reply.status === "blocked").length, 2);
     const first = winners[0];
     assert.ok(first);
-    const registry = join(root, "namespaces/slim/registry.json");
+    const registry = join(root, "factories/stable/slim/registry.json");
     const before = await readFile(registry, "utf8");
     const blocked = await start(root, "blocked");
     children.push(blocked.child);
