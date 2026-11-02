@@ -51,6 +51,8 @@ jobs:
         with:
           name: stable-distribution
           if-no-files-found: warn
+          include-hidden-files: true
+          compression-level: 0
           path: |
             .artifacts/distribution/*/packages/*/*.*
             .artifacts/distribution/*/checks/*.json
