@@ -47,25 +47,25 @@ it("keeps namespace inventory and reads committed instances after an interrupted
       ready: "ready",
       grace: 100,
     });
-    const ready = await client.directory(identity.namespace);
+    const ready = await client.directory(identity);
     assert.equal(ready.instances.find((entry) => entry.kind === "process")?.pid, lease.pid);
     assert.equal(ready.instances.find((entry) => entry.kind === "hosted")?.incarnation, attached.context.incarnation);
-    assert.equal(ready.namespaces[0]?.phase, "ready");
-    assert.ok(ready.namespaces[0]?.incarnation);
+    assert.equal(ready.factories[0]?.phase, "ready");
+    assert.ok(ready.factories[0]?.incarnation);
     assert.equal(JSON.stringify(ready).includes(lease.capability), false);
     assert.equal(JSON.stringify(ready).includes(server.authority), false);
     await assert.rejects(readDirectory(root), /held/);
     await client.release(lease);
     await attached.close();
     await server.close();
-    const closed = await readDirectory(root, identity.namespace);
+    const closed = await readDirectory(root, identity);
     assert.equal(closed.manager.phase, "closed");
     assert.ok(closed.instances.every((entry) => entry.phase === "retired"));
     const next = await serve(join(root, "next.sock"));
     services.push(next);
-    const carried = next.directory(identity.namespace);
+    const carried = next.directory(identity);
     assert.notEqual(carried.manager.incarnation, closed.manager.incarnation);
-    assert.deepEqual(carried.namespaces, closed.namespaces);
+    assert.deepEqual(carried.factories, closed.factories);
     assert.deepEqual(carried.instances, closed.instances);
     const replacement = await next.expose({
       ...options,
@@ -99,17 +99,17 @@ it("keeps namespace inventory and reads committed instances after an interrupted
       });
     });
     const managerFile = join(root, "manager.sqlite");
-    const registryFile = join(root, "namespaces/slim/registry.json");
+    const registryFile = join(root, "factories/stable/slim/registry.json");
     const managerBefore = hash(await readFile(managerFile));
     const registryBefore = hash(await readFile(registryFile));
     const exited = new Promise<void>((done) => child?.once("exit", () => done()));
     child.kill("SIGKILL");
     await exited;
-    const interrupted = await readDirectory(root, identity.namespace);
+    const interrupted = await readDirectory(root, identity);
     assert.equal(interrupted.manager.phase, "interrupted");
     assert.equal(interrupted.revision, published.view.revision);
     assert.deepEqual(interrupted.instances, published.view.instances);
-    assert.deepEqual(interrupted.namespaces, published.view.namespaces);
+    assert.deepEqual(interrupted.factories, published.view.factories);
     assert.equal(hash(await readFile(managerFile)), managerBefore);
     assert.equal(hash(await readFile(registryFile)), registryBefore);
     assert.deepEqual(JSON.parse(await readFile(join(published.data, "probe.json"), "utf8")), { retained: true });

@@ -57,7 +57,7 @@ it("validates hosted control and managed resource teardown", async () => {
       },
     });
     await assert.rejects(serve(join(root, "contender.sock"), undefined, undefined, root), /held/);
-    await assert.rejects(Resources.open({ root, namespace: identity.namespace }), /held/);
+    await assert.rejects(Resources.open({ channel: channel("stable"), root, namespace: identity.namespace }), /held/);
     cases.push("manager and namespace ownership are exclusive before touching existing resources");
     const peer = await client.connect<Methods>(identity);
     const description = await peer.call("describe", null);
@@ -110,8 +110,8 @@ it("validates hosted control and managed resource teardown", async () => {
       "replacement",
     );
     await replacement.close();
-    const grants = (await client.resources(identity.namespace)).grants;
-    assert.ok(grants.every((grant) => grant.scope === "namespace"));
+    const grants = (await client.resources(identity)).grants;
+    assert.ok(grants.every((grant) => grant.scope === "factory"));
     cases.push("old generation/incarnation cannot stop successor; no temporary resource grants remain");
     await mkdir("../../.artifacts/control", { recursive: true });
     await writeFile(

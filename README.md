@@ -41,3 +41,9 @@ pnpm exec pesuite guard
 
 通过 registry 固定消费 release 0.2.0，apps/capsule/tests/channel.test.ts 使用 slim 自己的产品身份验证 stable、beta 与自定义渠道的版本生成、安装身份、metadata 和 emit/read roundtrip。版本与 channel 不一致或发布 local 时拒绝；证据在 .artifacts/channel/receipt.json。
 channel 与 namespace 共同确定资源 factory；当前 sidecar 0.5 仍有 namespace-only allocator 缺口，四单元 SDK 的 factory 接入尚未完成。渠道纠偏与后续验收见 suite #28；现有 probe 仅证明所执行的契约。
+
+## Factory 资源边界验证
+
+sidecar 0.6.0 / protocol 0.3.0 的独立 registry probe 使用 Service.factory/Client.factory，将 channel+namespace 绑定到资源、实例、会话与 binding。相同 namespace/service/resource 名的 stable/beta 隔离，generation 与正常 manager 更替保留持久数据，跨 factory 租约/forward 拒绝；资源 scope 使用 factory。证据在 .artifacts/control/factory.json。
+旧 namespace-only schema-1 目录通过 readLegacyDirectory 显式只读检查，不猜测 stable，也不隐式迁移；哈希不变证据在 .artifacts/control/legacy.json。现有真实独立进程/SIGKILL probes 同时覆盖新 factory 记录，中断 lane 的资源写入也拒绝。
+四单元已发布 SDK 仍使用固定旧依赖；factory probe 不代表新 SDK 已接入。root manager 故障域、恢复写入、存活子进程接管、资源使用关系与完整渠道发布编排继续见 suite #28/#30。

@@ -2,6 +2,10 @@ packages:
   - apps/*
   - packages/*
 minimumReleaseAgeExclude:
+  - "@perishcode/config@0.3.0"
+  - "@perishcode/release@0.3.0"
+  - "@perishcode/sidecar@0.6.0"
+  - "@perishcode/protocol@0.3.0"
   - "@perishcode/protocol@0.2.0"
   - "@perishcode/config@0.2.0"
   - "@perishcode/release@0.2.0"

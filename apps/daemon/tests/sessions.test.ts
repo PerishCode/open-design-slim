@@ -148,7 +148,7 @@ it("consumes lifecycle sessions from the package boundary and preserves interrup
     );
     children.push(owner);
     const remote = new Client(endpoint, authority);
-    const active = await remote.directory(scope.namespace);
+    const active = await remote.directory(scope);
     assert.equal(active.sessions[0]?.phase, "active");
     let stolen = false;
     const blocked = assert.rejects(
@@ -163,12 +163,14 @@ it("consumes lifecycle sessions from the package boundary and preserves interrup
     assert.equal(stolen, false);
     await kill(owner);
     await blocked;
-    const interrupted = await remote.directory(scope.namespace);
+    const interrupted = await remote.directory(scope);
     assert.equal(interrupted.sessions.find((entry) => entry.channel === scope.channel)?.phase, "interrupted");
     await assert.rejects(
       remote.session(scope, async () => {}),
       /interrupted/,
     );
+    await assert.rejects(remote.factory(scope).grant({ kind: "data", name: "late", scope: "factory" }), /interrupted/);
+    await remote.factory(other).grant({ kind: "data", name: "late", scope: "factory" });
     await remote.session(other, async () => {});
     const lines = createInterface({ input: manager.stdout as NonNullable<ChildProcess["stdout"]> });
     const closing = new Promise<string>((done) =>
