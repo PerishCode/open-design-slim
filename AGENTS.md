@@ -55,6 +55,7 @@ Build includes both source and test type checking. Installation does not trigger
 ### Local debugging
 
 Build modules, prepare the seed using the content command below, then run `pnpm exec electron apps/electron/dist/main.mjs`.
+Automated validation uses hidden, non-focusable windows and macOS accessory policy. PESUITE_PROBE=1 implies automation and quits at ready; PESUITE_AUTOMATION=1 keeps the same background behavior without auto-quit for crash injection. Receipts assert no window show/focus events.
 The page must reach ready through actual Capsule/Web/Daemon execution. PESUITE_DATA selects isolated data; PESUITE_PROBE=1 and PESUITE_RECEIPT select the existing host probe mode. Unified inspect/serve remain upstream #11/#12 work.
 
 ### Local build and standard checks

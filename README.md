@@ -60,3 +60,10 @@ apps/electron/tests/factory.test.ts 验证同管理根、同 namespace 的 stabl
 PESUITE_E2E=1 的安装验收保留同一个宿主，验证四类内容更新、冷启动、失败激活和显式 binding 恢复。
 真实 SIGKILL 后 daemon 随父管道关闭，manager 保留 interrupted 事实；再次启动拒绝，且 manager/factory 字节不变。
 该拒绝是新 SDK 的约束，不提供 manager 恢复或旧 namespace 数据迁移；不得删除权威文件绕过。
+
+
+自动化验证使用 electron SDK 0.2.1：PESUITE_PROBE=1 隐含后台模式并在 ready 后退出；
+需要真实 SIGKILL 的长驻验证用 PESUITE_AUTOMATION=1、PESUITE_PROBE=0。
+窗口隐藏且不可聚焦，macOS 在 ready 前使用 accessory activation policy。
+HostReceipt.automation 记录 show/focus 及最终窗口事实；完整安装验收同时检查故障注入窗口保持后台。
+正常交互启动仍使用默认显示/聚焦行为。Space 是否变化须单独观察，不能由隐藏窗口直接推断。

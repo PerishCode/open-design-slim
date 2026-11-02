@@ -4,8 +4,8 @@ import { createHash } from "node:crypto";
 import { cp, mkdir, readdir, readFile, readlink, rm, stat, writeFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import { promisify } from "node:util";
+import type { HostReceipt as Receipt } from "@perishcode/electron";
 import { compose } from "@perishcode/release";
-import type { Receipt } from "@perishcode/runtime";
 import { readProduct, writeProduct } from "@perishcode/runtime";
 import { readDirectory } from "@perishcode/sidecar";
 import { it } from "vitest";
@@ -139,6 +139,14 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
       const stop = JSON.parse(await readFile(`${receipt}.stop.json`, "utf8"));
       assert.equal(result.generation, result.daemon.generation);
       assert.equal(result.nonce, result.daemon.nonce);
+      assert.deepEqual(result.automation, {
+        enabled: true,
+        policy: "accessory",
+        shown: false,
+        focused: false,
+        visible: false,
+        focusable: false,
+      });
       assert.equal(result.factory.channel, first.manifest.channel);
       assert.ok(
         result.directory.instances.some(
@@ -224,7 +232,13 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
     const crashReceipt = join(root, "crash.json");
     await rm(crashReceipt, { force: true });
     const child = spawn(executable, [], {
-      env: { ...process.env, PESUITE_DATA: state, PESUITE_RECEIPT: crashReceipt },
+      env: {
+        ...process.env,
+        PESUITE_DATA: state,
+        PESUITE_RECEIPT: crashReceipt,
+        PESUITE_AUTOMATION: "1",
+        PESUITE_PROBE: "0",
+      },
       stdio: "ignore",
     });
     const exited = new Promise((done) => child.once("exit", done));
@@ -242,6 +256,14 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
       }
       assert.ok(crash, "interactive host never reached readiness");
       assert.equal(crash.pid, child.pid);
+      assert.deepEqual(crash.automation, {
+        enabled: true,
+        policy: "accessory",
+        shown: false,
+        focused: false,
+        visible: false,
+        focusable: false,
+      });
     } finally {
       child.kill("SIGKILL");
       await exited;
