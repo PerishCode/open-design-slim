@@ -101,8 +101,8 @@ importers:
   apps/electron:
     dependencies:
       '@perishcode/electron':
-        specifier: 0.2.0
-        version: 0.2.0(electron@41.3.0)
+        specifier: 0.2.1
+        version: 0.2.1(electron@41.3.0)
     devDependencies:
       '@perishcode/cli':
         specifier: 0.6.0
@@ -138,8 +138,8 @@ importers:
   apps/web:
     devDependencies:
       '@perishcode/electron':
-        specifier: 0.2.0
-        version: 0.2.0(electron@41.3.0)
+        specifier: 0.2.1
+        version: 0.2.1(electron@41.3.0)
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
@@ -475,8 +475,8 @@ packages:
     resolution: {integrity: sha512-EbDP0yCPbaSFGhQt/F5yA+e7R9+x8HE6xXqOovs+QyFF99YHGjV+9I8doplqCR5EzAiwhhY2NqV2oiSERkze7A==, tarball: https://npm.pkg.github.com/download/@perishcode/config/0.3.0/1f88f2afadbc0273243b54c7b9bb409c40525de6}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/electron@0.2.0':
-    resolution: {integrity: sha512-h8J+vCkd3YFndKWRy3f/64BKLGYAJfp8jKafTfcfeO9/TAt0/8VlpjBFEe7vN9nisugSQmylf1AekK7v64DxSQ==, tarball: https://npm.pkg.github.com/download/@perishcode/electron/0.2.0/232bc91179aec931e4e5666e15c6aee497a6e393}
+  '@perishcode/electron@0.2.1':
+    resolution: {integrity: sha512-TRWlvLXpuBMik5eWorXHOb+FTw/pI7QlNOpoTVKp0PrcNUeBPjHNZMTdqyaNZA/woitv2Pbk4a5YGe3qZlgI0g==, tarball: https://npm.pkg.github.com/download/@perishcode/electron/0.2.1/30368b2e9f30c4ee578842e8ac6ea1f0d2d862e8}
     engines: {node: '>=24.0.0'}
     peerDependencies:
       electron: 41.3.0
@@ -2292,7 +2292,7 @@ snapshots:
     dependencies:
       '@perishcode/protocol': 0.3.0
 
-  '@perishcode/electron@0.2.0(electron@41.3.0)':
+  '@perishcode/electron@0.2.1(electron@41.3.0)':
     dependencies:
       '@perishcode/release': 0.4.1
       '@perishcode/runtime': 0.2.0

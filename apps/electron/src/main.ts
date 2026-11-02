@@ -19,5 +19,6 @@ void startElectron({
   candidate: process.env.PESUITE_CANDIDATE,
   recover: process.env.PESUITE_RECOVER === "1",
   probe: process.env.PESUITE_PROBE === "1",
+  automation: process.env.PESUITE_AUTOMATION === "1",
   receipt: process.env.PESUITE_RECEIPT,
 });
