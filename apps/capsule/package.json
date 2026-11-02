@@ -12,7 +12,8 @@
     "@types/node": "24.12.2",
     "typescript": "7.0.2",
     "vitest": "4.1.6",
-    "esbuild": "0.28.0"
+    "esbuild": "0.28.0",
+    "@perishcode/release": "0.2.0"
   },
   "dependencies": {
     "@perishcode/runtime": "0.1.0"
