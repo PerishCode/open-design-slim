@@ -12,14 +12,14 @@ importers:
         specifier: 2.6.4
         version: 2.6.4
       '@perishcode/cli':
-        specifier: 0.6.0
-        version: 0.6.0(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.7.0
+        version: 0.7.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/pack':
         specifier: 0.2.0
         version: 0.2.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/pipeline':
-        specifier: 0.1.4
-        version: 0.1.4(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.2.0
+        version: 0.2.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/release':
         specifier: 0.4.1
         version: 0.4.1
@@ -52,8 +52,8 @@ importers:
         version: 0.2.0
     devDependencies:
       '@perishcode/pipeline':
-        specifier: 0.1.4
-        version: 0.1.4(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.2.0
+        version: 0.2.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/release':
         specifier: 0.4.1
         version: 0.4.1
@@ -104,9 +104,12 @@ importers:
         specifier: 0.2.1
         version: 0.2.1(electron@41.3.0)
     devDependencies:
+      '@perishcode/automation':
+        specifier: 0.1.0
+        version: 0.1.0
       '@perishcode/cli':
-        specifier: 0.6.0
-        version: 0.6.0(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.7.0
+        version: 0.7.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/pack':
         specifier: 0.2.0
         version: 0.2.0(electron-builder-squirrel-windows@26.8.1)
@@ -462,12 +465,16 @@ packages:
   '@oxc-project/types@0.155.0':
     resolution: {integrity: sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q==}
 
+  '@perishcode/automation@0.1.0':
+    resolution: {integrity: sha512-CE9bCKTDxWUG2cb6/smBCTSVQmwztJtqhLwkLD7eXE2YQAcE/A8y76NmnRvb2TCy/olat1mMogCJVxfLIhIV0w==, tarball: https://npm.pkg.github.com/download/@perishcode/automation/0.1.0/d2eda35723e3e9c411f7f430e89349e7ad173ca0}
+    engines: {node: '>=24.0.0'}
+
   '@perishcode/blob@0.1.0':
     resolution: {integrity: sha512-KDCOARMnoMybtO4VsouKHy+wSv6vMR7J79i4zvrSUnyPAleawkQVFBE/DaZaPSd2gU5vMF0WiFzVzg2VsTYlFA==, tarball: https://npm.pkg.github.com/download/@perishcode/blob/0.1.0/613fea7d631104f7a6a5647f4b87577b7fd74aaa}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/cli@0.6.0':
-    resolution: {integrity: sha512-paC8OXHhihACl8x7sQcv2yxQGjdj4Z0U9GPzfWS1LHuJ/2G22eViSCMe38QtQcp0WspuIaNrcZe8uh1pFU96Gw==, tarball: https://npm.pkg.github.com/download/@perishcode/cli/0.6.0/8e4f7ba7ff9e303830e0a5bfb0bf01a60d002f72}
+  '@perishcode/cli@0.7.0':
+    resolution: {integrity: sha512-Nwm4kHS9gwT4oOT8q21+v44d/cB3eT1f83dgRZkRiESSxBL2MvyXF34Ofh86vfeyBAyYyp2muw6+XTi+PkO6ig==, tarball: https://npm.pkg.github.com/download/@perishcode/cli/0.7.0/ea42f34130b13ad288d9434cf958447906647b4e}
     engines: {node: '>=24'}
     hasBin: true
 
@@ -489,8 +496,8 @@ packages:
     resolution: {integrity: sha512-c6vCqIdAOBls1TwQjryQauH/T699wAx9ingt3rstQIgpj6DTsn/15DVpxFOvgIbk+iAWGs1DRfT0IpQn54/QrA==, tarball: https://npm.pkg.github.com/download/@perishcode/pack/0.2.0/34885c6274c3751fe98a34b24bf7df3913a7fb93}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/pipeline@0.1.4':
-    resolution: {integrity: sha512-1qEGRcKfxPdaUcPQeNWjikUXabzu/svVDbdFX8idJ5/6L0iV5ir6z/qRTmF+Ar3/FY06lhyMiUCBcIFF8lDE1g==, tarball: https://npm.pkg.github.com/download/@perishcode/pipeline/0.1.4/2814219b3368b0e78dc68ea1ffec035ed4fccc87}
+  '@perishcode/pipeline@0.2.0':
+    resolution: {integrity: sha512-XwoUrdaRkBkF+ZacY67EO/70DaG/BOpH1TqUTr9+K358c1HCgOsoYdtRHPduJOIIpy0S7JhUT0uhP0qVlC/gwA==, tarball: https://npm.pkg.github.com/download/@perishcode/pipeline/0.2.0/ceb7eca2cbf0514e61cbe515ac0a0dfdcc3a92a6}
     engines: {node: '>=24.0.0'}
 
   '@perishcode/protocol@0.1.0':
@@ -2273,15 +2280,17 @@ snapshots:
 
   '@oxc-project/types@0.155.0': {}
 
+  '@perishcode/automation@0.1.0': {}
+
   '@perishcode/blob@0.1.0':
     dependencies:
       '@perishcode/protocol': 0.1.0
 
-  '@perishcode/cli@0.6.0(electron-builder-squirrel-windows@26.8.1)':
+  '@perishcode/cli@0.7.0(electron-builder-squirrel-windows@26.8.1)':
     dependencies:
       '@perishcode/guard': 0.5.0
       '@perishcode/pack': 0.2.0(electron-builder-squirrel-windows@26.8.1)
-      '@perishcode/pipeline': 0.1.4(electron-builder-squirrel-windows@26.8.1)
+      '@perishcode/pipeline': 0.2.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/release': 0.4.1
       '@perishcode/runtime': 0.2.0
     transitivePeerDependencies:
@@ -2314,8 +2323,9 @@ snapshots:
       - electron-builder-squirrel-windows
       - supports-color
 
-  '@perishcode/pipeline@0.1.4(electron-builder-squirrel-windows@26.8.1)':
+  '@perishcode/pipeline@0.2.0(electron-builder-squirrel-windows@26.8.1)':
     dependencies:
+      '@perishcode/automation': 0.1.0
       '@perishcode/guard': 0.5.0
       '@perishcode/pack': 0.2.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/protocol': 0.3.0
