@@ -67,3 +67,10 @@ PESUITE_E2E=1 的安装验收保留同一个宿主，验证四类内容更新、
 窗口隐藏且不可聚焦，macOS 在 ready 前使用 accessory activation policy。
 HostReceipt.automation 记录 show/focus 及最终窗口事实；完整安装验收同时检查故障注入窗口保持后台。
 正常交互启动仍使用默认显示/聚焦行为。Space 是否变化须单独观察，不能由隐藏窗口直接推断。
+
+
+原生全屏验收由 `@perishcode/automation` 统一提供；产品只调用共享启动器和 Observer，不复制原生查询。
+在已经处于原生全屏 Space 时运行 `PESUITE_E2E=1 PESUITE_DESKTOP=1 pnpm --filter @perishcode/slim-electron test`，覆盖安装流程中正常退出、失败启动和 SIGKILL。
+每次启动前确认原生全屏，退出后继续观察 1500ms；环境不满足或用户主动切换 Space 时本轮不会通过。
+也可先通过正式 build/pack，再显式执行 `pnpm exec pesuite check --channel preview --gate desktop` 的三场景独立关卡。
+普通 installed / CI 的窗口检查不声称完成原生全屏验收。原生观察依赖 macOS Swift 工具链与只读诊断查询，正常产品启动不依赖它。

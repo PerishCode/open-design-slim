@@ -55,7 +55,7 @@ Build includes both source and test type checking. Installation does not trigger
 ### Local debugging
 
 Build modules, prepare the seed using the content command below, then run `pnpm exec electron apps/electron/dist/main.mjs`.
-Automated validation uses hidden, non-focusable windows and macOS accessory policy. PESUITE_PROBE=1 implies automation and quits at ready; PESUITE_AUTOMATION=1 keeps the same background behavior without auto-quit for crash injection. Receipts assert no window show/focus events.
+Automated validation uses the shared @perishcode/automation launcher with hidden, non-focusable windows and macOS accessory policy. PESUITE_PROBE=1 implies automation and quits at ready; PESUITE_AUTOMATION=1 keeps the same background behavior without auto-quit for crash injection. Receipts assert no window show/focus events.
 The page must reach ready through actual Capsule/Web/Daemon execution. PESUITE_DATA selects isolated data; PESUITE_PROBE=1 and PESUITE_RECEIPT select the existing host probe mode. Unified inspect/serve remain upstream #11/#12 work.
 
 ### Local build and standard checks
@@ -96,6 +96,7 @@ The sessions.test.ts registry probe records .artifacts/control/sessions.json: in
 The capsule channel.test.ts independently consumes release 0.4.1 to prove product-owned channel/version identity, emitted manifests and mismatched-channel rejection. It records .artifacts/channel/receipt.json. The four-unit SDK consumes sidecar 0.6/release 0.4.1; runtime/electron 0.2 receipts include factory scope and sidecar process directory facts.
 factory.test.ts independently verifies equal resource/service names across channels, same-factory generation/normal-manager continuity, foreign lease/forward rejection and explicit schema-1 inspection without writes. Evidence is .artifacts/control/factory.json and legacy.json. New Directory/Registry schema is 2, resource persistent scope is factory. Old namespace-only roots require explicit migration; no guessed stable or automatic cleanup.
 On macOS with a desktop session, run `PESUITE_E2E=1 pnpm --filter @perishcode/slim-electron test` after installing and building.
+Set PESUITE_DESKTOP=1 alongside PESUITE_E2E=1 for shared native fullscreen observation on every launch, including failures and SIGKILL. It requires an actual fullscreen starting Space, records host activation/exit and continues 1500ms after exit; no fullscreen or lost native sampling is unqualified and fails the explicit run. Native code stays in suite, not this repo.
 That opt-in test builds probe versions, invokes the formal release/pack capabilities, retains one installed host, verifies four changed contents, cold starts, ABI rejection, failed activation, explicit binding recovery and post-ready SIGKILL. Interrupted manager reopening must reject without rewriting manager/factory truth; PESUITE_RECOVER does not recover manager ownership. Evidence and installed copies remain under .artifacts/skeleton.
 Ordinary pnpm test skips that installed test; it never implies that real installation acceptance ran.
 

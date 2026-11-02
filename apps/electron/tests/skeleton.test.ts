@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { execFile, spawn } from "node:child_process";
+import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import { cp, mkdir, readdir, readFile, readlink, rm, stat, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, readFile, readlink, stat, writeFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import { promisify } from "node:util";
+import { type CaseReceipt, Observer, runElectron, waitGone } from "@perishcode/automation";
 import type { HostReceipt as Receipt } from "@perishcode/electron";
 import { compose } from "@perishcode/release";
 import { readProduct, writeProduct } from "@perishcode/runtime";
@@ -99,226 +100,186 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
       return hash.digest("hex");
     }
     const physicalBefore = await fingerprint(app);
-
-    function launch(name: string, extra?: NodeJS.ProcessEnv): Promise<Receipt>;
-    function launch(
-      name: string,
-      extra: NodeJS.ProcessEnv,
-      expected: number,
-      message?: string,
-    ): Promise<Receipt | undefined>;
-    async function launch(
-      name: string,
-      extra: NodeJS.ProcessEnv = {},
-      expected = 0,
-      message?: string,
-    ): Promise<Receipt | undefined> {
-      const receipt = join(root, `${name}.json`);
-      await rm(receipt, { force: true });
-      await rm(`${receipt}.stop.json`, { force: true });
-      const execution = execute(executable, [], {
-        timeout: 30000,
-        env: { ...process.env, PESUITE_DATA: state, PESUITE_PROBE: "1", PESUITE_RECEIPT: receipt, ...extra },
-      });
-      const { stdout, stderr } = await execution.then(
-        (value) => {
-          assert.equal(expected, 0, `${name} unexpectedly passed`);
-          return value;
-        },
-        (error) => {
-          if (expected === 0) throw error;
-          assert.equal(error.code, expected);
-          return error;
-        },
-      );
-      cases.push({ name, expectedExit: expected, stdout, stderr });
-      if (message) assert.ok(stderr.includes(message), `${name}: unexpected failure: ${stderr}`);
-      if (expected !== 0) return;
-      const result = JSON.parse(await readFile(receipt, "utf8"));
-      assert.equal(result.pid, execution.child.pid, "receipt belongs to a different host process");
-      const stop = JSON.parse(await readFile(`${receipt}.stop.json`, "utf8"));
-      assert.equal(result.generation, result.daemon.generation);
-      assert.equal(result.nonce, result.daemon.nonce);
-      assert.deepEqual(result.automation, {
-        enabled: true,
-        policy: "accessory",
-        shown: false,
-        focused: false,
-        visible: false,
-        focusable: false,
-      });
-      assert.equal(result.factory.channel, first.manifest.channel);
-      assert.ok(
-        result.directory.instances.some(
-          (instance: Receipt["directory"]["instances"][number]) =>
-            instance.kind === "process" &&
-            instance.service === "daemon" &&
-            instance.phase === "ready" &&
-            instance.pid === result.daemon.pid &&
-            instance.channel === result.factory.channel &&
-            instance.namespace === result.factory.namespace &&
-            instance.generation === result.generation,
-        ),
-      );
-      assert.equal(stop.status, "stopped");
-      assert.deepEqual(stop.survivors, []);
-      assert.equal(alive(result.daemon.pid), false);
-      assert.equal(alive(result.pid), false);
-      return result;
-    }
-    const initial = await step("installed initial", () => launch("initial"));
-    assert.equal(initial.generation, first.envelope.digest);
-    assert.equal(initial.capsule, "capsule:skeleton1:blob:skeleton1");
-    assert.equal(initial.renderer, "web:skeleton1:launch1");
-    const cold = await step("cold start", () => launch("cold"));
-    assert.equal(cold.renderer, "web:skeleton1:launch2");
-
-    await step("build skeleton2 without repackaging host", () => build("skeleton2"));
-    const second = await readProduct(join(repository, ".artifacts/seed"));
-    for (const key of ["capsule", "daemon", "web"] as const)
-      assert.notEqual(first.envelope.generation[key].digest, second.envelope.generation[key].digest);
-    assert.notEqual(first.envelope.generation.blobs[0]?.digest, second.envelope.generation.blobs[0]?.digest);
-    const update = await step("activate four new contents", () =>
-      launch("update", { PESUITE_CANDIDATE: resolve(repository, ".artifacts/seed") }),
-    );
-    assert.equal(update.generation, second.envelope.digest);
-    assert.equal(update.capsule, "capsule:skeleton2:blob:skeleton2");
-    assert.equal(update.daemon.witness, "daemon:skeleton2");
-    assert.equal(update.renderer, "web:skeleton2:launch3");
-    const selected = await launch("updated-cold");
-    assert.equal(selected.generation, second.envelope.digest);
-    assert.equal(selected.renderer, "web:skeleton2:launch4");
-
-    const incompatible = await compose(second.manifest, {
-      carrier: 999,
-      capsule: join(repository, "apps/capsule/dist"),
-      daemon: join(repository, "apps/daemon/dist"),
-      web: join(repository, "apps/web/dist"),
-    });
-    await writeProduct(join(root, "incompatible"), incompatible);
-    await launch("incompatible", { PESUITE_CANDIDATE: join(root, "incompatible") }, 1, "incompatible carrier ABI");
-    const afterCompatibility = await launch("after-compatibility");
-    assert.equal(afterCompatibility.generation, second.envelope.digest);
-
-    const broken = join(root, "broken-capsule");
-    await mkdir(broken, { recursive: true });
-    await writeFile(
-      join(broken, "index.mjs"),
-      'export async function activate() { throw new Error("injected capsule failure") }',
-    );
-    const failed = await compose(second.manifest, {
-      carrier: 1,
-      capsule: broken,
-      daemon: join(repository, "apps/daemon/dist"),
-      web: join(repository, "apps/web/dist"),
-    });
-    await writeProduct(join(root, "failed"), failed);
-    await launch("failed", { PESUITE_CANDIDATE: join(root, "failed") }, 1, "injected capsule failure");
-    await launch("blocked", {}, 1, "capsule startup is blocked");
-    const recovered = await launch("recovered", { PESUITE_RECOVER: "1" });
-    assert.equal(recovered.generation, second.envelope.digest);
-
-    function alive(pid: unknown) {
-      if (typeof pid !== "number" || !Number.isSafeInteger(pid) || pid < 1) throw new Error("invalid observed PID");
-      try {
-        process.kill(pid, 0);
-        return true;
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
-        return false;
-      }
-    }
-    // A real SIGKILL, after readiness, exercises the daemon's parent-pipe lifeline.
-    const crashReceipt = join(root, "crash.json");
-    await rm(crashReceipt, { force: true });
-    const child = spawn(executable, [], {
-      env: {
-        ...process.env,
-        PESUITE_DATA: state,
-        PESUITE_RECEIPT: crashReceipt,
-        PESUITE_AUTOMATION: "1",
-        PESUITE_PROBE: "0",
-      },
-      stdio: "ignore",
-    });
-    const exited = new Promise((done) => child.once("exit", done));
-    let crash: Receipt | undefined;
+    const desktopCases: CaseReceipt[] = [];
+    const desktop =
+      process.env.PESUITE_DESKTOP === "1"
+        ? await Observer.open({
+            directory: join(root, `desktop-${Date.now()}`),
+            bundle: first.manifest.identity.appid,
+            requireFullscreen: true,
+          })
+        : undefined;
     try {
-      const deadline = Date.now() + 15000;
-      while (Date.now() < deadline) {
-        try {
-          crash = JSON.parse(await readFile(crashReceipt, "utf8"));
-          break;
-        } catch (error) {
-          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-        }
-        await new Promise((done) => setTimeout(done, 50));
+      function launch(name: string, extra?: NodeJS.ProcessEnv): Promise<Receipt>;
+      function launch(
+        name: string,
+        extra: NodeJS.ProcessEnv,
+        expected: number,
+        message?: string,
+      ): Promise<Receipt | undefined>;
+      async function launch(
+        name: string,
+        extra: NodeJS.ProcessEnv = {},
+        expected = 0,
+        message?: string,
+      ): Promise<Receipt | undefined> {
+        const launched = await runElectron<Receipt>({
+          name,
+          mode: expected === 0 ? "exit" : "failure",
+          executable,
+          cwd: repository,
+          receipt: join(root, `${name}.json`),
+          observer: desktop,
+          message,
+          env: { PESUITE_DATA: state, ...extra },
+        });
+        cases.push({
+          name,
+          expectedExit: expected,
+          pid: launched.pid,
+          exit: launched.exit,
+          stdout: launched.stdout,
+          stderr: launched.stderr,
+        });
+        if (launched.desktop) desktopCases.push(launched.desktop);
+        if (expected !== 0) return;
+        const result = launched.observed;
+        assert.ok(result);
+        assert.equal(result.generation, result.daemon.generation);
+        assert.equal(result.nonce, result.daemon.nonce);
+        assert.equal(result.factory.channel, first.manifest.channel);
+        assert.ok(
+          result.directory.instances.some(
+            (instance: Receipt["directory"]["instances"][number]) =>
+              instance.kind === "process" &&
+              instance.service === "daemon" &&
+              instance.phase === "ready" &&
+              instance.pid === result.daemon.pid &&
+              instance.channel === result.factory.channel &&
+              instance.namespace === result.factory.namespace &&
+              instance.generation === result.generation,
+          ),
+        );
+        await waitGone(result.daemon.pid);
+        return result;
       }
-      assert.ok(crash, "interactive host never reached readiness");
-      assert.equal(crash.pid, child.pid);
-      assert.deepEqual(crash.automation, {
-        enabled: true,
-        policy: "accessory",
-        shown: false,
-        focused: false,
-        visible: false,
-        focusable: false,
+      const initial = await step("installed initial", () => launch("initial"));
+      assert.equal(initial.generation, first.envelope.digest);
+      assert.equal(initial.capsule, "capsule:skeleton1:blob:skeleton1");
+      assert.equal(initial.renderer, "web:skeleton1:launch1");
+      const cold = await step("cold start", () => launch("cold"));
+      assert.equal(cold.renderer, "web:skeleton1:launch2");
+
+      await step("build skeleton2 without repackaging host", () => build("skeleton2"));
+      const second = await readProduct(join(repository, ".artifacts/seed"));
+      for (const key of ["capsule", "daemon", "web"] as const)
+        assert.notEqual(first.envelope.generation[key].digest, second.envelope.generation[key].digest);
+      assert.notEqual(first.envelope.generation.blobs[0]?.digest, second.envelope.generation.blobs[0]?.digest);
+      const update = await step("activate four new contents", () =>
+        launch("update", { PESUITE_CANDIDATE: resolve(repository, ".artifacts/seed") }),
+      );
+      assert.equal(update.generation, second.envelope.digest);
+      assert.equal(update.capsule, "capsule:skeleton2:blob:skeleton2");
+      assert.equal(update.daemon.witness, "daemon:skeleton2");
+      assert.equal(update.renderer, "web:skeleton2:launch3");
+      const selected = await launch("updated-cold");
+      assert.equal(selected.generation, second.envelope.digest);
+      assert.equal(selected.renderer, "web:skeleton2:launch4");
+
+      const incompatible = await compose(second.manifest, {
+        carrier: 999,
+        capsule: join(repository, "apps/capsule/dist"),
+        daemon: join(repository, "apps/daemon/dist"),
+        web: join(repository, "apps/web/dist"),
       });
+      await writeProduct(join(root, "incompatible"), incompatible);
+      await launch("incompatible", { PESUITE_CANDIDATE: join(root, "incompatible") }, 1, "incompatible carrier ABI");
+      const afterCompatibility = await launch("after-compatibility");
+      assert.equal(afterCompatibility.generation, second.envelope.digest);
+
+      const broken = join(root, "broken-capsule");
+      await mkdir(broken, { recursive: true });
+      await writeFile(
+        join(broken, "index.mjs"),
+        'export async function activate() { throw new Error("injected capsule failure") }',
+      );
+      const failed = await compose(second.manifest, {
+        carrier: 1,
+        capsule: broken,
+        daemon: join(repository, "apps/daemon/dist"),
+        web: join(repository, "apps/web/dist"),
+      });
+      await writeProduct(join(root, "failed"), failed);
+      await launch("failed", { PESUITE_CANDIDATE: join(root, "failed") }, 1, "injected capsule failure");
+      await launch("blocked", {}, 1, "capsule startup is blocked");
+      const recovered = await launch("recovered", { PESUITE_RECOVER: "1" });
+      assert.equal(recovered.generation, second.envelope.digest);
+
+      const killed = await runElectron<Receipt>({
+        name: "post-ready-sigkill",
+        mode: "kill",
+        executable,
+        cwd: repository,
+        receipt: join(root, "crash.json"),
+        env: { PESUITE_DATA: state },
+        observer: desktop,
+      });
+      const crash = killed.observed;
+      assert.ok(crash);
+      if (killed.desktop) desktopCases.push(killed.desktop);
+      await waitGone(crash.daemon.pid);
+      const resourceTruth = async () => ({
+        manager: createHash("sha256")
+          .update(await readFile(join(state, "manager.sqlite")))
+          .digest("hex"),
+        factories: await fingerprint(join(state, "factories")),
+      });
+      const interruptedBefore = await resourceTruth();
+      const interrupted = await readDirectory(state);
+      assert.equal(interrupted.manager.phase, "interrupted");
+      assert.ok(
+        interrupted.instances.some((instance) => instance.pid === crash.daemon.pid && instance.phase === "ready"),
+      );
+      await launch("after-crash-blocked", {}, 1, "recovery required");
+      assert.deepEqual(await resourceTruth(), interruptedBefore, "blocked reopen rewrote interrupted resource truth");
+      assert.deepEqual(await readDirectory(state), interrupted);
+      const physicalAfter = await fingerprint(app);
+      assert.equal(physicalAfter, physicalBefore, "installed host bytes changed during content activation");
+      const receipt = {
+        schema: 1,
+        result: "passed",
+        platform: process.platform,
+        architecture: process.arch,
+        app,
+        state,
+        executable,
+        physicalBefore,
+        physicalAfter,
+        first: first.envelope,
+        second: second.envelope,
+        initial,
+        update,
+        recovered,
+        interrupted,
+        reopenBlocked: true,
+        crash,
+        cases,
+        desktop: { requested: !!desktop, observer: desktop?.directory, cases: desktopCases },
+        steps,
+        scope: "four-unit skeleton only; local content feed; unsigned macOS; no OpenDesign features",
+        unqualified: [
+          "signed installers",
+          "remote authenticated feed",
+          "Windows/Linux process trees",
+          "system-wide helper census",
+          "crash during commit",
+        ],
+      };
+      await writeFile(join(root, "receipt.json"), `${JSON.stringify(receipt, null, 2)}\n`);
+      process.stdout.write(`${JSON.stringify({ result: receipt.result, receipt: join(root, "receipt.json"), app })}\n`);
     } finally {
-      child.kill("SIGKILL");
-      await exited;
+      await desktop?.close();
     }
-    const deadline = Date.now() + 5000;
-    while (alive(crash.daemon.pid) && Date.now() < deadline) await new Promise((done) => setTimeout(done, 50));
-    assert.equal(alive(crash.daemon.pid), false, "daemon survived parent SIGKILL");
-    const resourceTruth = async () => ({
-      manager: createHash("sha256")
-        .update(await readFile(join(state, "manager.sqlite")))
-        .digest("hex"),
-      factories: await fingerprint(join(state, "factories")),
-    });
-    const interruptedBefore = await resourceTruth();
-    const interrupted = await readDirectory(state);
-    assert.equal(interrupted.manager.phase, "interrupted");
-    assert.ok(
-      interrupted.instances.some((instance) => instance.pid === crash.daemon.pid && instance.phase === "ready"),
-    );
-    await launch("after-crash-blocked", {}, 1, "recovery required");
-    assert.deepEqual(await resourceTruth(), interruptedBefore, "blocked reopen rewrote interrupted resource truth");
-    assert.deepEqual(await readDirectory(state), interrupted);
-    const physicalAfter = await fingerprint(app);
-    assert.equal(physicalAfter, physicalBefore, "installed host bytes changed during content activation");
-    const receipt = {
-      schema: 1,
-      result: "passed",
-      platform: process.platform,
-      architecture: process.arch,
-      app,
-      state,
-      executable,
-      physicalBefore,
-      physicalAfter,
-      first: first.envelope,
-      second: second.envelope,
-      initial,
-      update,
-      recovered,
-      interrupted,
-      reopenBlocked: true,
-      crash,
-      cases,
-      steps,
-      scope: "four-unit skeleton only; local content feed; unsigned macOS; no OpenDesign features",
-      unqualified: [
-        "signed installers",
-        "remote authenticated feed",
-        "Windows/Linux process trees",
-        "system-wide helper census",
-        "crash during commit",
-      ],
-    };
-    await writeFile(join(root, "receipt.json"), `${JSON.stringify(receipt, null, 2)}\n`);
-    process.stdout.write(`${JSON.stringify({ result: receipt.result, receipt: join(root, "receipt.json"), app })}\n`);
   },
   180000,
 );
