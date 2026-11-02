@@ -6,6 +6,7 @@
 - Scope is electron/capsule/web/daemon skeletons and probes only. Do not migrate OpenDesign features, business APIs or data models.
 - Consume fixed @perishcode versions from GitHub Packages; do not copy suite mechanisms or use adjacent checkouts, workspace links or tarball overrides for delivery. Tokens belong in user .npmrc.
 - [suite #28](https://github.com/PerishCode/electron-suite/issues/28) owns channel correction: channel is product distribution identity and channel + namespace identifies a resource factory. Sidecar 0.6 probes qualify channel+namespace factory resource isolation; the published four-unit SDK still needs factory migration.
+- [suite #32](https://github.com/PerishCode/electron-suite/issues/32) owns shared distribution tooling. Workflows select channel identity and explicit quality gates through short pesuite calls; version/build/package/check/publish implementation belongs to suite. Do not add shell logic, local composite actions or product scripts to implement release capabilities.
 - Public lifecycle capabilities use pesuite or the owning package APIs/tests. package.json scripts only contain lint/test/build; the root dispatches `pnpm -r --if-present run <same-name>`. Modules own their tools; no root callbacks, lifecycle hooks, shortcuts or scripts directories.
 - Use bound Service.factory/Client.factory and hosted Context (or published runtime adapters) for downstream lifecycle/resources. Do not assemble product management from raw launch/process scans/private ports or paths; persistent directory guarantees apply to Service-owned instances.
 - guard owns engineering compliance. Validate changed modules, direct root formatting/config checks and guard; retain actual acceptance evidence. Sidecar 0.6 adds factory resource management on persistent instance/session inventory; recovery writes and live-process adoption remain unqualified.
@@ -23,23 +24,24 @@
 
 ## Core file index
 
-| File or location                                    | Responsibility                                                       |
-| --------------------------------------------------- | -------------------------------------------------------------------- |
-| package.json / pnpm-workspace.yaml / pnpm-lock.yaml | three standard dispatchers, module membership and registry closure   |
-| pesuite.yaml / biome.json / .npmrc                  | guard/runtime identity, formatter/linter policy, registry routing    |
-| apps/*/esbuild.config.mjs                           | each module's own build, with no call back to the root               |
-| apps/electron/src/main.ts                           | published host adapter bootstrap                                     |
-| apps/capsule/src/index.ts                           | executed composition entry and injected resource probe               |
-| apps/web/src/index.ts / index.html                  | browser bridge and placeholder page                                  |
-| apps/daemon/src/main.ts                             | published minimal daemon service                                     |
-| apps/capsule/tests/channel.test.ts                  | published release contract and explicit product channel identity     |
-| apps/daemon/tests/factory.test.ts                   | cross-channel resource isolation and explicit legacy read-only facts |
-| apps/daemon/tests/sessions.test.ts                  | lifecycle batches, private nesting and interrupted owner fencing     |
-| apps/daemon/tests/directory.test.ts                 | factory continuity and interrupted read-only inventory               |
-| apps/daemon/tests/ownership.test.ts                 | registry ownership, normal replacement and real SIGKILL acceptance   |
-| apps/daemon/tests/control.test.ts                   | hosted control and resource lifecycle acceptance                     |
-| apps/electron/tests/skeleton.test.ts                | opt-in real unsigned installed lifecycle acceptance                  |
-| .artifacts                                          | generated seed, package, installed copies and execution receipts     |
+| File or location                                           | Responsibility                                                         |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------- |
+| package.json / pnpm-workspace.yaml / pnpm-lock.yaml        | three standard dispatchers, module membership and registry closure     |
+| .github/workflows/stable.release.yml / channel.release.yml | formal versus experimental quality selection and platform runners      |
+| pesuite.yaml / biome.json / .npmrc                         | guard/runtime/pipeline product layout, formatting and registry routing |
+| apps/*/esbuild.config.mjs                                  | each module's own build, with no call back to the root                 |
+| apps/electron/src/main.ts                                  | published host adapter bootstrap                                       |
+| apps/capsule/src/index.ts                                  | executed composition entry and injected resource probe                 |
+| apps/web/src/index.ts / index.html                         | browser bridge and placeholder page                                    |
+| apps/daemon/src/main.ts                                    | published minimal daemon service                                       |
+| apps/capsule/tests/channel.test.ts                         | published release contract and explicit product channel identity       |
+| apps/daemon/tests/factory.test.ts                          | cross-channel resource isolation and explicit legacy read-only facts   |
+| apps/daemon/tests/sessions.test.ts                         | lifecycle batches, private nesting and interrupted owner fencing       |
+| apps/daemon/tests/directory.test.ts                        | factory continuity and interrupted read-only inventory                 |
+| apps/daemon/tests/ownership.test.ts                        | registry ownership, normal replacement and real SIGKILL acceptance     |
+| apps/daemon/tests/control.test.ts                          | hosted control and resource lifecycle acceptance                       |
+| apps/electron/tests/skeleton.test.ts                       | opt-in real unsigned installed lifecycle acceptance                    |
+| .artifacts                                                 | generated seed, package, installed copies and execution receipts       |
 
 ## Iteration workflows
 
@@ -60,16 +62,27 @@ Use `pnpm --filter @perishcode/slim-<unit> build|test|lint` for module iteration
 At repository scope run `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm exec biome check .`, and `pnpm exec pesuite guard`.
 Format with `pnpm exec biome check --write .`; there are no typecheck/format/guard aliases.
 
-### Content generation and packaging
+### Channel build, package and release
 
-After the modules have built:
+Product inputs are data in pesuite.yaml/pipeline: carrier/capsule/daemon/web module roots and blob slot paths. The runtime section declares the stable base product identity/version. --channel derives the selected product identity without rewriting source configuration.
 
 ```sh
-pnpm exec pesuite release --capsule apps/capsule/dist --daemon apps/daemon/dist --web apps/web/dist --blob probe=apps/capsule/dist/probe.bin --output .artifacts/seed
-pnpm exec pesuite pack --carrier apps/electron/dist --seed .artifacts/seed --output .artifacts/package --receipt .artifacts/package.json
+pnpm exec pesuite version --channel preview --number 1
+pnpm exec pesuite build --channel preview --number 1
+pnpm exec pesuite check --channel preview --gate policy
+pnpm exec pesuite check --channel preview --gate tests
+pnpm exec pesuite pack --channel preview --platform mac
+pnpm exec pesuite check --channel preview --gate artifacts
+pnpm exec pesuite check --channel preview --gate installed
 ```
 
-release composes verified local content using pesuite.yaml/runtime. pack consumes those exact seed bytes and is currently unsigned macOS. Neither command implicitly builds the modules. PESUITE_BUILD creates changed probe content during module build.
+Use --channel stable without --number for the formal base version, or explicit --version when intentionally selecting a full canonical version. --base is available for explicit base-version overrides. Build compiles modules and stages fingerprinted content/carrier under .artifacts/distribution/<channel>; package/check consume that build receipt. A failed build invalidates its current pointer, and modified content or stale quality receipts reject publication.
+Native pack targets mac/linux/win on matching runners and architectures; it produces unsigned archives and SHA256 evidence. installed currently validates macOS initial/cold launches and managed shutdown. Do not infer signing, notarization, Windows/Linux installed-runtime support or remote-update trust from packaging success.
+
+stable.release.yml explicitly adds policy/tests/installed to artifacts checks. channel.release.yml selects only build/pack/artifacts on three native runners. The tool does not secretly add gates for stable. Both workflow_dispatch entries default publish=false. Actual publication calls pesuite publish with --repository, --mode and --require; selected passed receipts must match the current artifact/source. The implementation creates a draft, uploads/verifies assets and only then promotes it; existing tags are not overwritten. No public product release was needed for tool acceptance.
+GitHub Packages uses setup-node's registry routing with NODE_AUTH_TOKEN only for install; the optional PESUITE_PACKAGES_TOKEN secret may override the job token. Never copy a user token into repo files or workflow text.
+
+The earlier explicit pesuite release/pack path arguments remain available for focused skeleton debugging; they do not implicitly compile sources. The legacy installed-skeleton test still exercises that API. There are no lifecycle aliases or scripts directories.
 
 ### Local end-to-end verification
 

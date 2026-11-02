@@ -1,0 +1,79 @@
+name: experimental channel release
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Distribution channel, excluding stable and local
+        type: string
+        default: preview
+        required: true
+      number:
+        description: Positive counted release number
+        type: string
+        default: "1"
+        required: true
+      publish:
+        description: Publish the macOS artifact as a prerelease
+        type: boolean
+        default: false
+permissions:
+  contents: write
+  packages: read
+concurrency:
+  group: channel-release-${{ inputs.channel }}
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main' && inputs.channel != 'stable' && inputs.channel != 'local'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            platform: mac
+          - runner: ubuntu-24.04
+            platform: linux
+          - runner: windows-2025
+            platform: win
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      PESUITE_RELEASE_CHANNEL: ${{ inputs.channel }}
+      PESUITE_RELEASE_NUMBER: ${{ inputs.number }}
+      PESUITE_RELEASE_PLATFORM: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v5
+        with:
+          version: 11.13.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.18.0
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+          scope: "@perishcode"
+      - run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PESUITE_PACKAGES_TOKEN || github.token }}
+      - run: pnpm exec pesuite build --channel "$PESUITE_RELEASE_CHANNEL" --number "$PESUITE_RELEASE_NUMBER"
+      - run: pnpm exec pesuite pack --channel "$PESUITE_RELEASE_CHANNEL" --platform "$PESUITE_RELEASE_PLATFORM"
+      - run: pnpm exec pesuite check --channel "$PESUITE_RELEASE_CHANNEL" --gate artifacts --platform "$PESUITE_RELEASE_PLATFORM"
+      - if: inputs.publish && matrix.platform == 'mac'
+        run: pnpm exec pesuite publish --channel "$PESUITE_RELEASE_CHANNEL" --repository "$GITHUB_REPOSITORY" --mode prerelease --require artifacts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4.6.2
+        if: always()
+        with:
+          name: channel-distribution-${{ matrix.platform }}
+          if-no-files-found: warn
+          path: |
+            .artifacts/distribution/*/packages/*/*.*
+            .artifacts/distribution/*/checks/*.json
+            .artifacts/distribution/*/build.json
+            .artifacts/distribution/*/publication.json
