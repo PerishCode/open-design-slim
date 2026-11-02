@@ -1,5 +1,16 @@
 schemaVersion: 1
 guard:
+  directories:
+    repository:
+      - apps
+      - packages
+      - apps/*
+      - packages/*
+      - node_modules
+      - .artifacts
+      - .state
+      - .github
+      - .github/workflows
   components:
     - packages/components
 runtime:
@@ -10,3 +21,10 @@ runtime:
   namespace: slim
   scheme: opendesignslim
   version: 0.1.0
+pipeline:
+  carrier: apps/electron
+  capsule: apps/capsule
+  daemon: apps/daemon
+  web: apps/web
+  blobs:
+    probe: apps/capsule/dist/probe.bin

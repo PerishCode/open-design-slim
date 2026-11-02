@@ -47,3 +47,9 @@ channel 与 namespace 共同确定资源 factory；当前 sidecar 0.5 仍有 nam
 sidecar 0.6.0 / protocol 0.3.0 的独立 registry probe 使用 Service.factory/Client.factory，将 channel+namespace 绑定到资源、实例、会话与 binding。相同 namespace/service/resource 名的 stable/beta 隔离，generation 与正常 manager 更替保留持久数据，跨 factory 租约/forward 拒绝；资源 scope 使用 factory。证据在 .artifacts/control/factory.json。
 旧 namespace-only schema-1 目录通过 readLegacyDirectory 显式只读检查，不猜测 stable，也不隐式迁移；哈希不变证据在 .artifacts/control/legacy.json。现有真实独立进程/SIGKILL probes 同时覆盖新 factory 记录，中断 lane 的资源写入也拒绝。
 四单元已发布 SDK 仍使用固定旧依赖；factory probe 不代表新 SDK 已接入。root manager 故障域、恢复写入、存活子进程接管、资源使用关系与完整渠道发布编排继续见 suite #28/#30。
+
+## 共享构建分发入口
+
+产品只声明 pesuite.yaml/pipeline 的四单元模块路径和 blob 输入。固定版本 CLI 提供 version/build/check/pack/publish；--channel 只选择身份，质量关卡由 stable.release.yml 与 channel.release.yml 显式编排。每个 run 只有短 pesuite 调用，业务实现全部在 electron-suite。
+本地示例：`pnpm exec pesuite build --channel preview --number 1`，随后 `pesuite pack --channel preview --platform mac`；policy/tests/artifacts/installed 是独立 check gate。实际命令与边界见 AGENTS.md。
+两个 workflow 默认 publish=false；实验流程选择三个原生平台打包，正式流程在 macOS 额外选择 policy/tests/installed。当前产物 unsigned；打包通过不代表签名、公证、其他平台安装启动或远程更新验收完成。发布能力先上传 draft，再按显式模式提升，不覆盖已有 tag；没有为验证工具而公开发行产品版本。

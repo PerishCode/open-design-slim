@@ -1,0 +1,58 @@
+name: stable release
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the verified unsigned reference artifact
+        type: boolean
+        default: false
+permissions:
+  contents: write
+  packages: read
+concurrency:
+  group: stable-release
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v5
+        with:
+          version: 11.13.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.18.0
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+          scope: "@perishcode"
+      - run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PESUITE_PACKAGES_TOKEN || github.token }}
+      - run: pnpm exec pesuite build --channel stable
+      - run: pnpm exec pesuite check --channel stable --gate policy
+      - run: pnpm exec pesuite check --channel stable --gate tests
+      - run: pnpm exec pesuite pack --channel stable --platform mac
+      - run: pnpm exec pesuite check --channel stable --gate artifacts
+      - run: pnpm exec pesuite check --channel stable --gate installed
+      - if: inputs.publish
+        run: pnpm exec pesuite publish --channel stable --repository "$GITHUB_REPOSITORY" --mode release --require policy,tests,artifacts,installed
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4.6.2
+        if: always()
+        with:
+          name: stable-distribution
+          if-no-files-found: warn
+          path: |
+            .artifacts/distribution/*/packages/*/*.*
+            .artifacts/distribution/*/checks/*.json
+            .artifacts/distribution/*/build.json
+            .artifacts/distribution/*/publication.json
