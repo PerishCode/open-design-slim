@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type HostOptions, startElectron } from "@perishcode/electron";
@@ -21,6 +22,14 @@ void startElectron({
   probe: process.env.PESUITE_PROBE === "1",
   automation: process.env.PESUITE_AUTOMATION === "1",
   receipt: process.env.PESUITE_RECEIPT,
+  onActivation:
+    process.env.PESUITE_ACTIVATION_PAUSE && process.env.PESUITE_RECEIPT
+      ? async (checkpoint) => {
+          if (checkpoint.stage !== process.env.PESUITE_ACTIVATION_PAUSE) return;
+          await writeFile(`${process.env.PESUITE_RECEIPT}.activation.json`, JSON.stringify(checkpoint));
+          await new Promise<void>(() => {});
+        }
+      : undefined,
   updates: process.env.PESUITE_FEED
     ? {
         endpoint: process.env.PESUITE_FEED,
