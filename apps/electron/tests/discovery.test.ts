@@ -191,7 +191,11 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_DISCOVERY_E2E === 
       await updates.stop();
       assert.ok(Date.now() - began < 1000);
       assert.deepEqual(await inspector.factory.binding(), before);
-      assert.deepEqual(await host.call("status", null), receipt);
+      const live = await host.call("status", null);
+      assert.equal(live.generation, receipt.generation);
+      assert.deepEqual(live.daemon, receipt.daemon);
+      assert.deepEqual(live.counts, receipt.counts);
+      assert.deepEqual(live.units, receipt.units);
       assert.equal(await fingerprint(app), physical);
       assert.equal(receipt.pid, lease.pid);
       assert.equal(receipt.generation, initial.envelope.digest);

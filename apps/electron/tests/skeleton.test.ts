@@ -162,7 +162,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
               instance.pid === result.daemon.pid &&
               instance.channel === result.factory.channel &&
               instance.namespace === result.factory.namespace &&
-              instance.generation === result.generation,
+              instance.generation === result.units.daemon.digest,
           ),
         );
         await waitGone(result.daemon.pid);
