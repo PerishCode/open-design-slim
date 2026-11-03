@@ -24,25 +24,26 @@
 
 ## Core file index
 
-| File or location                                           | Responsibility                                                         |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------- |
-| package.json / pnpm-workspace.yaml / pnpm-lock.yaml        | three standard dispatchers, module membership and registry closure     |
-| .github/workflows/stable.release.yml / channel.release.yml | formal versus experimental quality selection and platform runners      |
-| pesuite.yaml / biome.json / .npmrc                         | guard/runtime/pipeline product layout, formatting and registry routing |
-| apps/*/esbuild.config.mjs                                  | each module's own build, with no call back to the root                 |
-| apps/electron/src/main.ts                                  | host bootstrap and optional caller-owned status/echo contract          |
-| apps/capsule/src/index.ts                                  | executed composition entry and injected resource probe                 |
-| apps/web/src/index.ts / index.html                         | browser bridge and placeholder page                                    |
-| apps/daemon/src/main.ts                                    | published minimal daemon service                                       |
-| apps/capsule/tests/channel.test.ts                         | published release contract and explicit product channel identity       |
-| apps/daemon/tests/factory.test.ts                          | cross-channel resource isolation and explicit legacy read-only facts   |
-| apps/daemon/tests/sessions.test.ts                         | lifecycle batches, private nesting and interrupted owner fencing       |
-| apps/daemon/tests/directory.test.ts                        | factory continuity and interrupted read-only inventory                 |
-| apps/daemon/tests/ownership.test.ts                        | registry ownership, normal replacement and real SIGKILL acceptance     |
-| apps/daemon/tests/control.test.ts                          | hosted control and resource lifecycle acceptance                       |
-| apps/electron/tests/factory.test.ts                        | published SDK same-root/channel isolation and version continuity       |
-| apps/electron/tests/skeleton.test.ts                       | opt-in real unsigned installed lifecycle acceptance                    |
-| .artifacts                                                 | generated seed, package, installed copies and execution receipts       |
+| File or location                                           | Responsibility                                                               |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| package.json / pnpm-workspace.yaml / pnpm-lock.yaml        | three standard dispatchers, module membership and registry closure           |
+| .github/workflows/stable.release.yml / channel.release.yml | formal versus experimental quality selection and platform runners            |
+| pesuite.yaml / biome.json / .npmrc                         | guard/runtime/pipeline product layout, formatting and registry routing       |
+| apps/*/esbuild.config.mjs                                  | each module's own build, with no call back to the root                       |
+| apps/electron/src/main.ts                                  | host bootstrap and optional caller-owned status/echo contract                |
+| apps/capsule/src/index.ts                                  | executed composition entry and injected resource probe                       |
+| apps/web/src/index.ts / index.html                         | browser bridge and placeholder page                                          |
+| apps/daemon/src/main.ts                                    | published minimal daemon service                                             |
+| apps/capsule/tests/channel.test.ts                         | published release contract and explicit product channel identity             |
+| apps/daemon/tests/factory.test.ts                          | cross-channel resource isolation and explicit legacy read-only facts         |
+| apps/daemon/tests/sessions.test.ts                         | lifecycle batches, private nesting and interrupted owner fencing             |
+| apps/daemon/tests/directory.test.ts                        | factory continuity and interrupted read-only inventory                       |
+| apps/daemon/tests/ownership.test.ts                        | registry ownership, normal replacement and real SIGKILL acceptance           |
+| apps/daemon/tests/control.test.ts                          | hosted control and resource lifecycle acceptance                             |
+| apps/electron/tests/factory.test.ts                        | published SDK same-root/channel isolation and version continuity             |
+| apps/electron/tests/discovery.test.ts                      | real installed automatic feed preparation, fault/retry and unchanged binding |
+| apps/electron/tests/skeleton.test.ts                       | opt-in real unsigned installed lifecycle acceptance                          |
+| .artifacts                                                 | generated seed, package, installed copies and execution receipts             |
 
 ## Iteration workflows
 
@@ -112,3 +113,9 @@ The four-unit runtime uses factory-bound runtime/electron 0.2; standalone sideca
 `pnpm exec pesuite inspect list --data <manager-root> --channel <channel> --namespace slim` uses sidecar-owned private discovery and verifies the active manager. probe/call/stop select service and exact generation; call/stop require incarnation. Reconnect after restart, do not reuse old handles or force interrupted roots open.
 For background development inspection, build/prepare content, then run the existing Electron entry with PESUITE_INSPECT=1 PESUITE_AUTOMATION=1 (probe disabled). Choose PESUITE_DATA explicitly. The product owns host/status and host/echo; suite only carries arbitrary messages. Stop through the published host target. Installation uses the same API with its explicit manager data root.
 `PESUITE_E2E=1 PESUITE_INSPECT_E2E=1 pnpm --filter @perishcode/slim-electron test` qualifies actual development/installed starts, status/echo, CLI call/stop, normal restart, old-handle fencing, and managed static sources. Evidence is .artifacts/skeleton/inspect.json. Run separately from PESUITE_DESKTOP; inspection acceptance does not qualify native fullscreen or resolve suite #42.
+
+### Automatic candidate preparation
+
+#46 consumes update.watch through the product-owned post-ready hook. PESUITE_FEED selects a loopback static origin and PESUITE_FEED_KEY is a pinned public PEM (never a private key); feed selection also enables host inspection. Optional PESUITE_FEED_INTERVAL/PESUITE_FEED_TIMEOUT are validated by the shared package. updates/status reports current separately from prepared and errors. host/status obtains live daemon health rather than assuming its initial PID remains active.
+`PESUITE_DISCOVERY_E2E=1 pnpm --filter @perishcode/slim-electron test` builds its own seed and one installed host, publishes signed static feed fixtures through the package API, observes automatic Web-only/Daemon-only preparation, faults/retry and stop cancellation. It verifies unchanged binding, live baseline daemon and host bytes. Receipts are .artifacts/discovery/<run>/receipt.json. Do not combine it with the older installed-skeleton flag; preparation does not execute or activate candidate code.
+Current Capsule/carrier/blob identities are pinned in this increment. Later minimal-impact activation, per-unit execution/version/compatibility and crash-during-commit remain suite #13. Do not use PESUITE_CANDIDATE or pretend full app restart is a Web-only update. No public-feed trust or native fullscreen inference.

@@ -82,3 +82,9 @@ HostReceipt.automation 记录 show/focus 及最终窗口事实；完整安装验
 宿主显式启用 PESUITE_INSPECT=1 后注册产品自己的 status/echo 方法；配合 PESUITE_AUTOMATION=1 可保持后台调试。`pesuite inspect list --data <manager-root> --channel stable --namespace slim` 查询目标，再以 service/generation/incarnation 调用或停止。开发态与安装态使用同一公共入口，重启后的旧句柄不能操作新实例。
 
 真实验证：`PESUITE_E2E=1 PESUITE_INSPECT_E2E=1 pnpm --filter @perishcode/slim-electron test`，证据 .artifacts/skeleton/inspect.json。此验证不代表原生全屏长序列、远程更新发现或故障下载 fixture 已通过。Refs electron-suite #44、#11、#12。
+
+## 自动发现与候选准备
+
+宿主可通过 PESUITE_FEED 与 PESUITE_FEED_KEY（固定公钥）启用 sidecar 托管的自动轮询。共享 update 包下载并校验静态 feed 的 Web/Daemon 候选，inspect 的 updates/status 区分 current 与 prepared、错误和 revision。停止服务会取消在途请求。
+
+真实安装验证：`PESUITE_DISCOVERY_E2E=1 pnpm --filter @perishcode/slim-electron test`。本轮只准备候选，运行 binding、宿主、Capsule 和旧 Daemon 不变；不表示最小影响激活、接口兼容或新版本代码执行已通过。验收记录在 .artifacts/discovery/<run>/receipt.json，主线仍由 electron-suite #13 推进。

@@ -14,9 +14,9 @@
     "vitest": "4.1.6",
     "esbuild": "0.28.0",
     "@perishcode/release": "0.4.1",
-    "@perishcode/pipeline": "0.2.1"
+    "@perishcode/pipeline": "0.2.2"
   },
   "dependencies": {
-    "@perishcode/runtime": "0.2.1"
+    "@perishcode/runtime": "0.2.2"
   }
 }

@@ -18,6 +18,6 @@
     "vitest": "4.1.6"
   },
   "dependencies": {
-    "@perishcode/runtime": "0.2.1"
+    "@perishcode/runtime": "0.2.2"
   }
 }
