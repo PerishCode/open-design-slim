@@ -252,12 +252,9 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
       if (process.env.PESUITE_INSPECT_E2E === "1") {
         assert.ok(!desktop, "inspect lifecycle and fullscreen acceptance use separate explicit runs");
         const validation = join(root, `inspect-${Date.now()}`);
-        const controller = await serve(
-          join(tmpdir(), `slim-inspect-${process.pid}.sock`),
-          undefined,
-          undefined,
-          join(validation, "controller"),
-        );
+        const controller = await serve(join(tmpdir(), `slim-inspect-${process.pid}.sock`), {
+          root: join(validation, "controller"),
+        });
         const scope = { channel: first.manifest.channel, namespace: namespace("slim") };
         const factory = controller.factory({ ...scope, namespace: namespace("validation") });
         const sources = await Sources.open({
@@ -283,7 +280,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
               factory.start({
                 command: mode === "installed" ? executable : createRequire(import.meta.url)("electron"),
                 args: mode === "installed" ? [] : [join(repository, "apps/electron/dist/main.mjs")],
-                slot: mode,
+                service: mode,
                 generation: expected,
                 ready: `inspect-ready:${expected}`,
                 timeout: 20000,

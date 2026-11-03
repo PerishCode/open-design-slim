@@ -45,7 +45,7 @@ channel 与 namespace 共同确定资源 factory；sidecar 0.6 已提供 factory
 ## Factory 资源边界验证
 
 sidecar 0.6.0 / protocol 0.3.0 的独立 registry probe 使用 Service.factory/Client.factory，将 channel+namespace 绑定到资源、实例、会话与 binding。相同 namespace/service/resource 名的 stable/beta 隔离，generation 与正常 manager 更替保留持久数据，跨 factory 租约/forward 拒绝；资源 scope 使用 factory。证据在 .artifacts/control/factory.json。
-旧 namespace-only schema-1 目录通过 readLegacyDirectory 显式只读检查，不猜测 stable，也不隐式迁移；哈希不变证据在 .artifacts/control/legacy.json。现有真实独立进程/SIGKILL probes 同时覆盖新 factory 记录，中断 lane 的资源写入也拒绝。
+旧 namespace-only schema-1 目录通过 unsupported-format refusal 显式只读检查，不猜测 stable，也不隐式迁移；哈希不变证据在 .artifacts/control/legacy.json。现有真实独立进程/SIGKILL probes 同时覆盖新 factory 记录，中断 lane 的资源写入也拒绝。
 四单元已发布 runtime/electron 0.2 接入 sidecar 0.6/release 0.4.1，CLI 0.6 使用相同 SDK。root manager 故障域、恢复写入、存活子进程接管、资源使用关系与完整渠道发布编排继续见 suite #28/#30。
 
 ## 共享构建分发入口
@@ -96,3 +96,5 @@ PESUITE_LEAF_ACTIVATE=1 将已配置 feed 的准备流程接到 suite 的唯一�
 `PESUITE_LEAF_E2E=1 pnpm --filter @perishcode/slim-electron test` 验证同一安装宿主/Capsule、最小重启范围、数据保留、兼容拒绝、就绪失败及正常退出后的显式恢复。收据在 .artifacts/leaf/<run>/receipt.json；提交中断安全、manager adoption 与完整原生全屏仍由各自主线跟进。
 
 Activation interruption probes: `PESUITE_INTERRUPTION_E2E=1 pnpm --filter @perishcode/slim-electron test` exercises four real installed SIGKILL boundaries via suite diagnostics and preserves .artifacts/interruption receipts/roots. Offline inspection uses sidecar readBinding; both ordinary and recover startup reject interrupted ownership without changing authority. This proves safe refusal and retained data, not completed manager recovery, power-loss durability or native fullscreen behavior. See suite #50 under #13 and AGENTS.md for the opt-in pause inputs.
+
+Sidecar1.0 consumes one stamped-supervisor model and current data format. Product code declares service identities and uses factory lifecycle APIs; stamp encoding, supervisor startup, OS census and signal escalation stay in suite. No legacy readers or old launch adapters are retained. Directory schema3 includes root/target birth witnesses and observeProcesses reports independent OS facts. Native interruption receipts include before/after process observations; safe refusal still does not imply interrupted-owner recovery.
