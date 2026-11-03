@@ -11,13 +11,13 @@
   "devDependencies": {
     "@perishcode/protocol": "0.3.0",
     "@perishcode/release": "0.4.1",
-    "@perishcode/sidecar": "0.6.0",
+    "@perishcode/sidecar": "0.6.1",
     "@types/node": "24.12.2",
     "esbuild": "0.28.0",
     "typescript": "7.0.2",
     "vitest": "4.1.6"
   },
   "dependencies": {
-    "@perishcode/runtime": "0.2.0"
+    "@perishcode/runtime": "0.2.1"
   }
 }

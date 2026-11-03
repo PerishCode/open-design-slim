@@ -2,13 +2,18 @@ import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cp, mkdir, readdir, readFile, readlink, stat, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { promisify } from "node:util";
 import { type CaseReceipt, Observer, runElectron, waitGone } from "@perishcode/automation";
 import type { HostReceipt as Receipt } from "@perishcode/electron";
+import { Inspector } from "@perishcode/inspect";
+import { namespace } from "@perishcode/protocol";
 import { compose } from "@perishcode/release";
 import { readProduct, writeProduct } from "@perishcode/runtime";
-import { readDirectory } from "@perishcode/sidecar";
+import { Sources } from "@perishcode/serve";
+import { readDirectory, serve } from "@perishcode/sidecar";
 import { it } from "vitest";
 
 it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
@@ -243,6 +248,156 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
       await launch("after-crash-blocked", {}, 1, "recovery required");
       assert.deepEqual(await resourceTruth(), interruptedBefore, "blocked reopen rewrote interrupted resource truth");
       assert.deepEqual(await readDirectory(state), interrupted);
+      const inspection: unknown[] = [];
+      if (process.env.PESUITE_INSPECT_E2E === "1") {
+        assert.ok(!desktop, "inspect lifecycle and fullscreen acceptance use separate explicit runs");
+        const validation = join(root, `inspect-${Date.now()}`);
+        const controller = await serve(
+          join(tmpdir(), `slim-inspect-${process.pid}.sock`),
+          undefined,
+          undefined,
+          join(validation, "controller"),
+        );
+        const scope = { channel: first.manifest.channel, namespace: namespace("slim") };
+        const factory = controller.factory({ ...scope, namespace: namespace("validation") });
+        const sources = await Sources.open({
+          data: join(validation, "sources"),
+          scope,
+          sources: {
+            web: { directory: join(repository, "apps/web/dist") },
+            seed: { directory: join(repository, ".artifacts/seed") },
+          },
+        });
+        try {
+          const source = sources.endpoints.find((s) => s.service === "seed");
+          assert.ok(source);
+          const index = await fetch(`${source.url}/release.json`);
+          assert.equal(index.status, 200);
+          assert.equal((await index.json()).channel, scope.channel);
+          const sourceInspector = await Inspector.open(join(validation, "sources"), scope);
+          assert.ok((await sourceInspector.list()).some((i) => i.service === "web"));
+          for (const mode of ["development", "installed"] as const) {
+            const data = join(validation, mode);
+            const expected = mode === "installed" ? first.envelope.digest : second.envelope.digest;
+            const start = () =>
+              factory.start({
+                command: mode === "installed" ? executable : createRequire(import.meta.url)("electron"),
+                args: mode === "installed" ? [] : [join(repository, "apps/electron/dist/main.mjs")],
+                slot: mode,
+                generation: expected,
+                ready: `inspect-ready:${expected}`,
+                timeout: 20000,
+                env: {
+                  PESUITE_DATA: data,
+                  PESUITE_INSPECT: "1",
+                  PESUITE_PROBE: "0",
+                  PESUITE_AUTOMATION: "1",
+                  PESUITE_RECEIPT: join(validation, `${mode}.json`),
+                },
+              });
+            let lease = await start();
+            try {
+              const inspector = await Inspector.open(data, scope);
+              const host = (await inspector.list()).find((i) => i.service === "host");
+              assert.ok(host);
+              assert.ok((await inspector.list()).some((i) => i.service === "daemon" && i.kind === "process"));
+              const peer = await inspector.target<{
+                status: { input: unknown; output: Receipt };
+                echo: { input: unknown; output: { input: unknown } };
+              }>("host", expected, host.incarnation);
+              const status = await peer.call("status", null);
+              assert.equal(status.generation, expected);
+              assert.equal(status.daemon.generation, expected);
+              assert.ok(status.capsule);
+              assert.ok(status.renderer);
+              assert.equal(status.pid, lease.pid);
+              assert.equal(status.automation.shown, false);
+              assert.equal(status.automation.focused, false);
+              assert.deepEqual((await peer.call("echo", { mode, nonce: "caller-owned" })).input, {
+                mode,
+                nonce: "caller-owned",
+              });
+              const cli = [
+                "exec",
+                "pesuite",
+                "inspect",
+                "call",
+                "--data",
+                data,
+                "--channel",
+                scope.channel,
+                "--namespace",
+                scope.namespace,
+                "--service",
+                "host",
+                "--generation",
+                expected,
+                "--incarnation",
+                host.incarnation,
+                "--method",
+                "status",
+              ];
+              const reply = JSON.parse((await execute("pnpm", cli, { timeout: 10000 })).stdout);
+              assert.equal(reply.result.value.pid, lease.pid);
+              assert.ok(!JSON.stringify(reply).includes('"authority"'));
+              await peer.stop();
+              await waitGone(lease.pid);
+              await waitGone(Number(status.daemon.pid));
+              await factory.release(lease);
+              assert.equal((await readDirectory(data)).manager.phase, "closed");
+              lease = await start();
+              const reopened = await Inspector.open(data, scope);
+              assert.notEqual(reopened.manager, inspector.manager);
+              await assert.rejects(reopened.target("host", expected, host.incarnation), /stale/);
+              await assert.rejects(peer.probe());
+              const current = (await reopened.list()).find((i) => i.service === "host");
+              assert.ok(current);
+              await execute(
+                "pnpm",
+                [
+                  "exec",
+                  "pesuite",
+                  "inspect",
+                  "stop",
+                  "--data",
+                  data,
+                  "--channel",
+                  scope.channel,
+                  "--namespace",
+                  scope.namespace,
+                  "--service",
+                  "host",
+                  "--generation",
+                  expected,
+                  "--incarnation",
+                  current.incarnation,
+                ],
+                { timeout: 10000 },
+              );
+              await waitGone(lease.pid);
+              inspection.push({
+                mode,
+                status,
+                old: host.incarnation,
+                current: current.incarnation,
+                oldManager: inspector.manager,
+                manager: reopened.manager,
+                cli: reply.ok,
+                result: "passed",
+              });
+            } finally {
+              await factory.release(lease);
+            }
+          }
+        } finally {
+          await sources.close();
+          await controller.close();
+        }
+        await writeFile(
+          join(root, "inspect.json"),
+          JSON.stringify({ result: "passed", inspection, sources: sources.endpoints }, null, 2),
+        );
+      }
       const physicalAfter = await fingerprint(app);
       assert.equal(physicalAfter, physicalBefore, "installed host bytes changed during content activation");
       const receipt = {
@@ -264,6 +419,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
         reopenBlocked: true,
         crash,
         cases,
+        inspection,
         desktop: { requested: !!desktop, observer: desktop?.directory, cases: desktopCases },
         steps,
         scope: "four-unit skeleton only; local content feed; unsigned macOS; no OpenDesign features",

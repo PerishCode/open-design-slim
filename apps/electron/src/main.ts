@@ -21,4 +21,25 @@ void startElectron({
   probe: process.env.PESUITE_PROBE === "1",
   automation: process.env.PESUITE_AUTOMATION === "1",
   receipt: process.env.PESUITE_RECEIPT,
+  inspect:
+    process.env.PESUITE_INSPECT === "1"
+      ? async (session, receipt, quit) => {
+          await session.expose<{
+            status: { input: unknown; output: unknown };
+            echo: { input: unknown; output: unknown };
+          }>("host", {
+            handlers: {
+              status: () => receipt,
+              echo: (input, context) => ({ input, identity: context.identity, incarnation: context.incarnation }),
+            },
+            lifecycle: {
+              initialize: async () => {},
+              stop: async () => {
+                setImmediate(quit);
+              },
+            },
+          });
+          process.stdout.write(`inspect-ready:${receipt.generation}\n`);
+        }
+      : undefined,
 });

@@ -30,7 +30,7 @@
 | .github/workflows/stable.release.yml / channel.release.yml | formal versus experimental quality selection and platform runners      |
 | pesuite.yaml / biome.json / .npmrc                         | guard/runtime/pipeline product layout, formatting and registry routing |
 | apps/*/esbuild.config.mjs                                  | each module's own build, with no call back to the root                 |
-| apps/electron/src/main.ts                                  | published host adapter bootstrap                                       |
+| apps/electron/src/main.ts                                  | host bootstrap and optional caller-owned status/echo contract          |
 | apps/capsule/src/index.ts                                  | executed composition entry and injected resource probe                 |
 | apps/web/src/index.ts / index.html                         | browser bridge and placeholder page                                    |
 | apps/daemon/src/main.ts                                    | published minimal daemon service                                       |
@@ -56,7 +56,7 @@ Build includes both source and test type checking. Installation does not trigger
 
 Build modules, prepare the seed using the content command below, then run `pnpm exec electron apps/electron/dist/main.mjs`.
 Automated validation uses the shared @perishcode/automation launcher with hidden, non-focusable windows and macOS accessory policy. PESUITE_PROBE=1 implies automation and quits at ready; PESUITE_AUTOMATION=1 keeps the same background behavior without auto-quit for crash injection. Receipts assert no window show/focus events.
-The page must reach ready through actual Capsule/Web/Daemon execution. PESUITE_DATA selects isolated data; PESUITE_PROBE=1 and PESUITE_RECEIPT select the existing host probe mode. Unified inspect/serve remain upstream #11/#12 work.
+The page must reach ready through actual Capsule/Web/Daemon execution. PESUITE_DATA selects isolated data; PESUITE_PROBE=1 and PESUITE_RECEIPT select the existing host probe mode. Set PESUITE_INSPECT=1 to register the product-owned host status/echo methods after four-unit readiness; use the same published inspect entry for development and installation.
 
 ### Local build and standard checks
 
@@ -105,3 +105,10 @@ Ordinary pnpm test skips that installed test; it never implies that real install
 Upgrade fixed registry versions only after suite publishes them. Verify archive integrity and resolved paths, frozen install, module checks, guard and the relevant actual lifecycle tests.
 Record source/consumer commits, package versions, commands, results and unqualified boundaries in slim #4 and the owning suite issue.
 The four-unit runtime uses factory-bound runtime/electron 0.2; standalone sidecar probes remain separate evidence. Old namespace roots require explicit migration; do not delete authority or registry files. Signing, authenticated remote feeds, other platforms, complete process census and crash-during-commit require their own evidence.
+
+### Inspect and local sources
+
+`pnpm exec pesuite serve --channel stable --namespace slim` reads serve.data/sources and runs in the foreground. Source endpoints come from managed hosted Context; SIGINT/SIGTERM retires them. Content files/metadata may change without restarting the source, but update policy belongs to consumers. Never serve manager roots, copy control.json, or expose its credentials to the renderer.
+`pnpm exec pesuite inspect list --data <manager-root> --channel <channel> --namespace slim` uses sidecar-owned private discovery and verifies the active manager. probe/call/stop select service and exact generation; call/stop require incarnation. Reconnect after restart, do not reuse old handles or force interrupted roots open.
+For background development inspection, build/prepare content, then run the existing Electron entry with PESUITE_INSPECT=1 PESUITE_AUTOMATION=1 (probe disabled). Choose PESUITE_DATA explicitly. The product owns host/status and host/echo; suite only carries arbitrary messages. Stop through the published host target. Installation uses the same API with its explicit manager data root.
+`PESUITE_E2E=1 PESUITE_INSPECT_E2E=1 pnpm --filter @perishcode/slim-electron test` qualifies actual development/installed starts, status/echo, CLI call/stop, normal restart, old-handle fencing, and managed static sources. Evidence is .artifacts/skeleton/inspect.json. Run separately from PESUITE_DESKTOP; inspection acceptance does not qualify native fullscreen or resolve suite #42.
