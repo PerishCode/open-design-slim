@@ -14,14 +14,17 @@
     "vitest": "4.1.6",
     "electron": "41.3.0",
     "esbuild": "0.28.0",
-    "@perishcode/runtime": "0.2.0",
+    "@perishcode/runtime": "0.2.1",
     "@perishcode/pack": "0.2.0",
     "@perishcode/release": "0.4.1",
-    "@perishcode/cli": "0.7.0",
-    "@perishcode/sidecar": "0.6.0",
-    "@perishcode/automation": "0.1.0"
+    "@perishcode/cli": "0.8.0",
+    "@perishcode/sidecar": "0.6.1",
+    "@perishcode/automation": "0.1.0",
+    "@perishcode/inspect": "0.1.0",
+    "@perishcode/serve": "0.1.0",
+    "@perishcode/protocol": "0.3.0"
   },
   "dependencies": {
-    "@perishcode/electron": "0.2.1"
+    "@perishcode/electron": "0.2.2"
   }
 }

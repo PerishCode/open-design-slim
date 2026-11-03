@@ -28,3 +28,11 @@ pipeline:
   web: apps/web
   blobs:
     probe: apps/capsule/dist/probe.bin
+
+serve:
+  data: .state/serve
+  sources:
+    web:
+      directory: apps/web/dist
+    seed:
+      directory: .artifacts/seed

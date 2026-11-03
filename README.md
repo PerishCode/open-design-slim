@@ -74,3 +74,11 @@ HostReceipt.automation 记录 show/focus 及最终窗口事实；完整安装验
 每次启动前确认原生全屏，退出后继续观察 1500ms；环境不满足或用户主动切换 Space 时本轮不会通过。
 也可先通过正式 build/pack，再显式执行 `pnpm exec pesuite check --channel preview --gate desktop` 的三场景独立关卡。
 普通 installed / CI 的窗口检查不声称完成原生全屏验收。原生观察依赖 macOS Swift 工具链与只读诊断查询，正常产品启动不依赖它。
+
+## 统一本地 inspect / serve
+
+构建与准备 seed 后，`pnpm exec pesuite serve --channel stable --namespace slim` 按 pesuite.yaml 声明提供 web/seed 静态源。服务在前台运行，端口、socket、基础路径与退出由 sidecar 管理，SIGINT/SIGTERM 正常收敛。更新决策仍属于运行时消费者。
+
+宿主显式启用 PESUITE_INSPECT=1 后注册产品自己的 status/echo 方法；配合 PESUITE_AUTOMATION=1 可保持后台调试。`pesuite inspect list --data <manager-root> --channel stable --namespace slim` 查询目标，再以 service/generation/incarnation 调用或停止。开发态与安装态使用同一公共入口，重启后的旧句柄不能操作新实例。
+
+真实验证：`PESUITE_E2E=1 PESUITE_INSPECT_E2E=1 pnpm --filter @perishcode/slim-electron test`，证据 .artifacts/skeleton/inspect.json。此验证不代表原生全屏长序列、远程更新发现或故障下载 fixture 已通过。Refs electron-suite #44、#11、#12。
