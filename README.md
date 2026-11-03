@@ -94,3 +94,5 @@ HostReceipt.automation 记录 show/focus 及最终窗口事实；完整安装验
 PESUITE_LEAF_ACTIVATE=1 将已配置 feed 的准备流程接到 suite 的唯一激活控制者。Web-only 只换文档，Daemon-only 只换 daemon；unit.json 的独立版本与接口声明先通过校验。Web 资源 URL 带 artifact digest，验收同时核对实际执行见证，避免缓存旧 JS 被当作升级成功。
 
 `PESUITE_LEAF_E2E=1 pnpm --filter @perishcode/slim-electron test` 验证同一安装宿主/Capsule、最小重启范围、数据保留、兼容拒绝、就绪失败及正常退出后的显式恢复。收据在 .artifacts/leaf/<run>/receipt.json；提交中断安全、manager adoption 与完整原生全屏仍由各自主线跟进。
+
+Activation interruption probes: `PESUITE_INTERRUPTION_E2E=1 pnpm --filter @perishcode/slim-electron test` exercises four real installed SIGKILL boundaries via suite diagnostics and preserves .artifacts/interruption receipts/roots. Offline inspection uses sidecar readBinding; both ordinary and recover startup reject interrupted ownership without changing authority. This proves safe refusal and retained data, not completed manager recovery, power-loss durability or native fullscreen behavior. See suite #50 under #13 and AGENTS.md for the opt-in pause inputs.
