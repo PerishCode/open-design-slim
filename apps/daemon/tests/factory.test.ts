@@ -61,7 +61,7 @@ it("uses the published factory as the shared truth for resources, generations an
       assert.equal(journal.state.namespace, scope.namespace);
     });
     const ready = await remote.directory();
-    assert.equal(ready.schema, 3);
+    assert.equal(ready.schema, 4);
     assert.equal(ready.factories.length, 1);
     assert.ok(ready.instances.every((entry) => entry.channel === "stable"));
     const registry = await remote.resources();
@@ -79,7 +79,7 @@ it("uses the published factory as the shared truth for resources, generations an
       });
       const installed = createRequire(import.meta.url).resolve("@perishcode/sidecar");
       const version = JSON.parse(await readFile(join(dirname(dirname(installed)), "package.json"), "utf8")).version;
-      assert.equal(version, "1.0.1");
+      assert.equal(version, "2.0.0");
       await mkdir("../../.artifacts/control", { recursive: true });
       await writeFile(
         "../../.artifacts/control/factory.json",
