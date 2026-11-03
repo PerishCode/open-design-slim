@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type HostOptions, startElectron } from "@perishcode/electron";
-import { watch } from "@perishcode/update";
 import { app } from "electron";
 
 const here = fileURLToPath(new URL(".", import.meta.url));
@@ -22,16 +21,29 @@ void startElectron({
   probe: process.env.PESUITE_PROBE === "1",
   automation: process.env.PESUITE_AUTOMATION === "1",
   receipt: process.env.PESUITE_RECEIPT,
+  updates: process.env.PESUITE_FEED
+    ? {
+        endpoint: process.env.PESUITE_FEED,
+        publickey: process.env.PESUITE_FEED_KEY ?? "",
+        intervalMs: Number(process.env.PESUITE_FEED_INTERVAL ?? 5000),
+        timeoutMs: Number(process.env.PESUITE_FEED_TIMEOUT ?? 10000),
+        activate: process.env.PESUITE_LEAF_ACTIVATE === "1",
+      }
+    : undefined,
   inspect:
     process.env.PESUITE_INSPECT === "1" || process.env.PESUITE_FEED
-      ? async (session, receipt, quit) => {
+      ? async (session, receipt, quit, snapshot) => {
           await session.expose<{
             status: { input: unknown; output: unknown };
             echo: { input: unknown; output: unknown };
+            read: { input: unknown; output: unknown };
+            write: { input: unknown; output: unknown };
           }>("host", {
             handlers: {
-              status: async () => ({ ...receipt, daemon: await session.request("health") }),
+              status: snapshot,
               echo: (input, context) => ({ input, identity: context.identity, incarnation: context.incarnation }),
+              read: () => session.request("read"),
+              write: (value) => session.request("write", value),
             },
             lifecycle: {
               initialize: async () => {},
@@ -40,16 +52,6 @@ void startElectron({
               },
             },
           });
-          if (process.env.PESUITE_FEED) {
-            const publickey = process.env.PESUITE_FEED_KEY;
-            if (!publickey) throw new Error("PESUITE_FEED_KEY is required");
-            await watch(session, {
-              endpoint: process.env.PESUITE_FEED,
-              publickey,
-              intervalMs: Number(process.env.PESUITE_FEED_INTERVAL ?? 5000),
-              timeoutMs: Number(process.env.PESUITE_FEED_TIMEOUT ?? 10000),
-            });
-          }
           process.stdout.write(`inspect-ready:${receipt.generation}\n`);
         }
       : undefined,

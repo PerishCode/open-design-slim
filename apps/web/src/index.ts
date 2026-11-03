@@ -7,12 +7,13 @@ declare global {
 
 export async function connect(bridge: Bridge): Promise<number> {
   const health = await bridge.health();
-  if (health.generation !== bridge.bootstrap.generation || health.nonce !== bridge.bootstrap.nonce) {
+  const expected = bridge.bootstrap.daemon ?? bridge.bootstrap;
+  if (health.generation !== expected.generation || health.nonce !== expected.nonce) {
     throw new Error("daemon generation mismatch");
   }
   const previous = await bridge.read();
   const launches = typeof previous.launches === "number" ? previous.launches + 1 : 1;
-  await bridge.write({ launches });
+  await bridge.write({ ...previous, launches });
   return launches;
 }
 

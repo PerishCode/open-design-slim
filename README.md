@@ -88,3 +88,9 @@ HostReceipt.automation 记录 show/focus 及最终窗口事实；完整安装验
 宿主可通过 PESUITE_FEED 与 PESUITE_FEED_KEY（固定公钥）启用 sidecar 托管的自动轮询。共享 update 包下载并校验静态 feed 的 Web/Daemon 候选，inspect 的 updates/status 区分 current 与 prepared、错误和 revision。停止服务会取消在途请求。
 
 真实安装验证：`PESUITE_DISCOVERY_E2E=1 pnpm --filter @perishcode/slim-electron test`。本轮只准备候选，运行 binding、宿主、Capsule 和旧 Daemon 不变；不表示最小影响激活、接口兼容或新版本代码执行已通过。验收记录在 .artifacts/discovery/<run>/receipt.json，主线仍由 electron-suite #13 推进。
+
+## 最小影响激活
+
+PESUITE_LEAF_ACTIVATE=1 将已配置 feed 的准备流程接到 suite 的唯一激活控制者。Web-only 只换文档，Daemon-only 只换 daemon；unit.json 的独立版本与接口声明先通过校验。Web 资源 URL 带 artifact digest，验收同时核对实际执行见证，避免缓存旧 JS 被当作升级成功。
+
+`PESUITE_LEAF_E2E=1 pnpm --filter @perishcode/slim-electron test` 验证同一安装宿主/Capsule、最小重启范围、数据保留、兼容拒绝、就绪失败及正常退出后的显式恢复。收据在 .artifacts/leaf/<run>/receipt.json；提交中断安全、manager adoption 与完整原生全屏仍由各自主线跟进。

@@ -47,7 +47,7 @@ it("consumes product channel identity and canonical versions from the published 
     assert.throws(() => parseReleaseVersion("1.2.3-beta-internal.4"));
     const installed = createRequire(import.meta.url).resolve("@perishcode/release");
     const version = JSON.parse(await readFile(join(dirname(dirname(installed)), "package.json"), "utf8")).version;
-    assert.equal(version, "0.4.1");
+    assert.equal(version, "0.5.0");
     await mkdir("../../.artifacts/channel", { recursive: true });
     await writeFile(
       "../../.artifacts/channel/receipt.json",
