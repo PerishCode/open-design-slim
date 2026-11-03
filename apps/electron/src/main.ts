@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type HostOptions, startElectron } from "@perishcode/electron";
+import { watch } from "@perishcode/update";
 import { app } from "electron";
 
 const here = fileURLToPath(new URL(".", import.meta.url));
@@ -22,14 +23,14 @@ void startElectron({
   automation: process.env.PESUITE_AUTOMATION === "1",
   receipt: process.env.PESUITE_RECEIPT,
   inspect:
-    process.env.PESUITE_INSPECT === "1"
+    process.env.PESUITE_INSPECT === "1" || process.env.PESUITE_FEED
       ? async (session, receipt, quit) => {
           await session.expose<{
             status: { input: unknown; output: unknown };
             echo: { input: unknown; output: unknown };
           }>("host", {
             handlers: {
-              status: () => receipt,
+              status: async () => ({ ...receipt, daemon: await session.request("health") }),
               echo: (input, context) => ({ input, identity: context.identity, incarnation: context.incarnation }),
             },
             lifecycle: {
@@ -39,6 +40,16 @@ void startElectron({
               },
             },
           });
+          if (process.env.PESUITE_FEED) {
+            const publickey = process.env.PESUITE_FEED_KEY;
+            if (!publickey) throw new Error("PESUITE_FEED_KEY is required");
+            await watch(session, {
+              endpoint: process.env.PESUITE_FEED,
+              publickey,
+              intervalMs: Number(process.env.PESUITE_FEED_INTERVAL ?? 5000),
+              timeoutMs: Number(process.env.PESUITE_FEED_TIMEOUT ?? 10000),
+            });
+          }
           process.stdout.write(`inspect-ready:${receipt.generation}\n`);
         }
       : undefined,
