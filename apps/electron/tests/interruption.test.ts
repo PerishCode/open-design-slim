@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { generateKeyPairSync } from "node:crypto";
 import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { waitGone } from "@perishcode/automation";
 import type { HostReceipt } from "@perishcode/electron";
@@ -13,11 +15,11 @@ import { Authority, writeFeed } from "@perishcode/publish";
 import { compose } from "@perishcode/release";
 import { type ActivationCheckpoint, readProduct } from "@perishcode/runtime";
 import { Sources } from "@perishcode/serve";
-import { observeProcesses, readBinding, serve } from "@perishcode/sidecar";
+import { observeProcesses, type RecoveryPlan, readBinding, serve } from "@perishcode/sidecar";
 import { it } from "vitest";
 
 it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E === "1")(
-  "observes real installed SIGKILL across activation boundaries without adopting interrupted authority",
+  "recovers real installed activation interruptions through root-wide explicit recovery",
   async () => {
     const repository = resolve("../.."),
       root = join(repository, `.artifacts/interruption/${Date.now()}`);
@@ -119,15 +121,21 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
           PESUITE_FEED_KEY: pair.publicKey.export({ format: "pem", type: "spki" }).toString(),
           PESUITE_FEED_INTERVAL: "100",
         };
-        const start = (recover: boolean) =>
-          factory.start({
+        const start = (recover: boolean, resume = false, selected = initial.envelope.digest) => {
+          const runtimeEnv: Record<string, string> = { ...env, PESUITE_RECOVER: recover ? "1" : "0" };
+          if (resume) {
+            delete runtimeEnv.PESUITE_ACTIVATION_PAUSE;
+            runtimeEnv.PESUITE_LEAF_ACTIVATE = "0";
+          }
+          return factory.start({
             command: join(app, "Contents/MacOS", initial.manifest.identity.scheme),
             service: "host",
-            generation: initial.envelope.digest,
-            ready: `inspect-ready:${initial.envelope.digest}`,
+            generation: selected,
+            ready: `inspect-ready:${selected}`,
             timeout: 15000,
-            env: { ...env, PESUITE_RECOVER: recover ? "1" : "0" },
+            env: runtimeEnv,
           });
+        };
         let lease: Awaited<ReturnType<typeof start>> | undefined;
         try {
           lease = await start(false);
@@ -216,6 +224,61 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
             JSON.parse(await readFile(join(persistent.value, "state.json"), "utf8")).retained,
             "factory-data",
           );
+          const inspectPlan = async () =>
+            JSON.parse((await run(["exec", "pesuite", "recover", "inspect", "--data", data])).stdout)
+              .result as RecoveryPlan;
+          const recoveryPlan = await inspectPlan();
+          assert.equal(recoveryPlan.phase, "ready");
+          assert.deepEqual(await Promise.all(authorityFiles.map((file) => readFile(join(data, file)))), bytes);
+          let interruptedRecovery = false;
+          if (point === "ready") {
+            const entry = pathToFileURL(createRequire(import.meta.url).resolve("@perishcode/sidecar")).href;
+            const body = `import{recover}from ${JSON.stringify(entry)};await recover(process.argv[1],{expected:process.argv[2],onCheckpoint:async c=>{if(c.stage==='prepared'){console.log('recovery-paused');await new Promise(()=>{});}}});`;
+            const actor = await factory.start({
+              command: process.execPath,
+              args: ["--input-type=module", "-e", body, data, recoveryPlan.fingerprint],
+              service: "recovery",
+              generation: recoveryPlan.fingerprint as typeof initial.envelope.digest,
+              ready: "recovery-paused",
+              timeout: 15000,
+            });
+            process.kill(actor.pid, "SIGKILL");
+            await waitGone(actor.pid, 5000);
+            await factory.release(actor);
+            const resumed = await inspectPlan();
+            assert.equal(resumed.phase, "recovering");
+            assert.equal(resumed.fingerprint, recoveryPlan.fingerprint);
+            interruptedRecovery = true;
+          }
+          const recovered = JSON.parse(
+            (await run(["exec", "pesuite", "recover", "apply", "--data", data, "--expected", recoveryPlan.fingerprint]))
+              .stdout,
+          ).result as RecoveryPlan;
+          assert.equal(recovered.phase, "complete");
+          const closed = await readBinding(data, scope);
+          assert.equal(closed.directory.manager.phase, "closed");
+          assert.equal(closed.journal.state.current, before.journal.state.current);
+          if (point !== "committed") assert.equal(closed.journal.state.attempt?.status, "failed");
+          const selected = point === "committed" ? candidate.envelope.digest : initial.envelope.digest;
+          lease = await start(point !== "committed", true, selected);
+          const fresh = await Inspector.open(data, scope);
+          const restoredHost = await fresh.target<{
+            status: { input: unknown; output: HostReceipt };
+            read: { input: unknown; output: Record<string, unknown> };
+          }>("host", selected);
+          const restored = await restoredHost.call("status", null);
+          assert.equal(restored.generation, selected);
+          assert.equal(restored.units.web.version, point === "committed" ? "0.2.0" : "0.1.0");
+          assert.equal(restored.units.daemon.version, point === "committed" ? "0.2.0" : "0.1.0");
+          assert.equal((await restoredHost.call("read", null)).retained, "factory-data");
+          assert.notEqual(restored.directory.manager.incarnation, before.directory.manager.incarnation);
+          assert.ok(!(await fresh.factory.binding()).state.attempt);
+          await assert.rejects(host.call("status", null));
+          await restoredHost.stop();
+          await waitGone(lease.pid, 5000);
+          await waitGone(Number(restored.daemon.pid), 5000);
+          await factory.release(lease);
+          lease = undefined;
           receipts.push({
             point,
             checkpoint,
@@ -227,7 +290,11 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
             osAfter,
             survivors: [],
             result: "passed",
-            recovery: "blocked; not recovered",
+            recovery: "explicit root recovery and cold launch passed",
+            recoveryPlan,
+            recovered,
+            restored,
+            interruptedRecovery,
           });
           await writeFile(
             join(root, "receipt.json"),
@@ -235,7 +302,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
               {
                 receipts,
                 scope:
-                  "unsigned macOS registry; tracked host/Daemon only; no recovery/adoption/power-loss/fullscreen claim",
+                  "unsigned macOS registry; explicit dead-owner recovery, retained current/data and cold launch; no live adoption/power-loss/fullscreen claim",
               },
               null,
               2,

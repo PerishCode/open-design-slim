@@ -4,7 +4,7 @@ import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { channel, digest, namespace } from "@perishcode/protocol";
-import { type Attachment, Client, type Context, Resources, serve } from "@perishcode/sidecar";
+import { type Attachment, Client, type Context, serve } from "@perishcode/sidecar";
 
 import { it } from "vitest";
 
@@ -57,8 +57,7 @@ it("validates hosted control and managed resource teardown", async () => {
       },
     });
     await assert.rejects(serve(join(root, "contender.sock"), { root: root }), /held/);
-    await assert.rejects(Resources.open({ channel: channel("stable"), root, namespace: identity.namespace }), /held/);
-    cases.push("manager and namespace ownership are exclusive before touching existing resources");
+    cases.push("manager authority is exclusive before touching existing resources");
     const peer = await client.connect<Methods>(identity);
     const description = await peer.call("describe", null);
     assert.deepEqual(description.identity, identity);

@@ -17,6 +17,6 @@
     "@perishcode/pipeline": "0.3.0"
   },
   "dependencies": {
-    "@perishcode/runtime": "0.5.1"
+    "@perishcode/runtime": "0.6.0"
   }
 }
