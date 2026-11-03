@@ -92,19 +92,16 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_DISCOVERY_E2E === 
       scope,
       sources: { feed: { directory: content } },
     });
-    const controller = await serve(
-      join(tmpdir(), `slim-discovery-${process.pid}.sock`),
-      undefined,
-      undefined,
-      join(root, "controller"),
-    );
+    const controller = await serve(join(tmpdir(), `slim-discovery-${process.pid}.sock`), {
+      root: join(root, "controller"),
+    });
     const factory = controller.factory({ ...scope, namespace: namespace("validation") });
     let lease: Awaited<ReturnType<typeof factory.start>> | undefined;
     const observed: Status[] = [];
     try {
       lease = await factory.start({
         command: join(app, "Contents/MacOS", initial.manifest.identity.scheme),
-        slot: "host",
+        service: "host",
         generation: initial.envelope.digest,
         ready: `inspect-ready:${initial.envelope.digest}`,
         timeout: 20000,

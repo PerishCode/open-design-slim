@@ -41,7 +41,7 @@ it("keeps namespace inventory and reads committed instances after an interrupted
       namespace: identity.namespace,
       channel: identity.channel,
       generation: identity.generation,
-      slot: "daemon",
+      service: "daemon",
       command: process.execPath,
       args: ["-e", "process.stdout.write('ready\\n');setInterval(()=>{},1000)"],
       ready: "ready",

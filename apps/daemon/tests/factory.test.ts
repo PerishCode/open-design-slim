@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { digest, namespace } from "@perishcode/protocol";
 import { channelDescriptor, formatReleaseVersion } from "@perishcode/release";
-import { Client, readDirectory, readLegacyDirectory, serve } from "@perishcode/sidecar";
+import { Client, readDirectory, serve } from "@perishcode/sidecar";
 import { it } from "vitest";
 
 it("uses the published factory as the shared truth for resources, generations and management", async () => {
@@ -45,7 +45,7 @@ it("uses the published factory as the shared truth for resources, generations an
     assert.equal(first.context.roots.data, second.context.roots.data);
     const lease = await stable.start({
       generation: identity.generation,
-      slot: "probe",
+      service: "probe",
       command: process.execPath,
       args: ["-e", "console.log('ready');setInterval(()=>{},1000)"],
       ready: "ready",
@@ -61,7 +61,7 @@ it("uses the published factory as the shared truth for resources, generations an
       assert.equal(journal.state.namespace, scope.namespace);
     });
     const ready = await remote.directory();
-    assert.equal(ready.schema, 2);
+    assert.equal(ready.schema, 3);
     assert.equal(ready.factories.length, 1);
     assert.ok(ready.instances.every((entry) => entry.channel === "stable"));
     const registry = await remote.resources();
@@ -79,7 +79,7 @@ it("uses the published factory as the shared truth for resources, generations an
       });
       const installed = createRequire(import.meta.url).resolve("@perishcode/sidecar");
       const version = JSON.parse(await readFile(join(dirname(dirname(installed)), "package.json"), "utf8")).version;
-      assert.equal(version, "0.8.0");
+      assert.equal(version, "1.0.1");
       await mkdir("../../.artifacts/control", { recursive: true });
       await writeFile(
         "../../.artifacts/control/factory.json",
@@ -118,8 +118,8 @@ it("uses the published factory as the shared truth for resources, generations an
     await rm(root, { recursive: true, force: true });
   }
 });
-it("inspects legacy namespace metadata explicitly without guessing a channel or writing authority", async () => {
-  const root = await realpath(await mkdtemp(join(tmpdir(), "slim-legacy-")));
+it("rejects unsupported authority format without changing its bytes", async () => {
+  const root = await realpath(await mkdtemp(join(tmpdir(), "slim-unsupported-")));
   try {
     const file = join(root, "manager.sqlite"),
       incarnation = randomUUID();
@@ -140,19 +140,13 @@ it("inspects legacy namespace metadata explicitly without guessing a channel or 
         .update(await readFile(file))
         .digest("hex");
     const before = await hash();
-    const legacy = await readLegacyDirectory(root);
-    assert.equal(legacy.schema, 1);
-    await assert.rejects(readDirectory(root), /readLegacyDirectory/);
-    await assert.rejects(serve(join(root, "blocked.sock")), /explicit migration required/);
+    await assert.rejects(readDirectory(root), /recovery required/);
+    await assert.rejects(serve(join(root, "blocked.sock")), /recovery required/);
     assert.equal(await hash(), before);
     await mkdir("../../.artifacts/control", { recursive: true });
     await writeFile(
-      "../../.artifacts/control/legacy.json",
-      JSON.stringify(
-        { result: "passed", legacy, before, after: await hash(), implicitMigrationRejected: true },
-        null,
-        2,
-      ),
+      "../../.artifacts/control/unsupported.json",
+      JSON.stringify({ result: "passed", before, after: await hash(), unsupportedFormatRejected: true }, null, 2),
     );
   } finally {
     await rm(root, { recursive: true, force: true });

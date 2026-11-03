@@ -13,7 +13,7 @@ import { Authority, writeFeed } from "@perishcode/publish";
 import { compose } from "@perishcode/release";
 import { type ActivationCheckpoint, readProduct } from "@perishcode/runtime";
 import { Sources } from "@perishcode/serve";
-import { readBinding, serve } from "@perishcode/sidecar";
+import { observeProcesses, readBinding, serve } from "@perishcode/sidecar";
 import { it } from "vitest";
 
 it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E === "1")(
@@ -83,12 +83,9 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
       blobs: [{ slot: "probe", path: join(repository, "apps/capsule/dist/probe.bin") }],
     });
     const scope = { channel: initial.manifest.channel, namespace: namespace("slim") };
-    const controller = await serve(
-      join(tmpdir(), `slim-interruption-${process.pid}.sock`),
-      undefined,
-      undefined,
-      join(root, "controller"),
-    );
+    const controller = await serve(join(tmpdir(), `slim-interruption-${process.pid}.sock`), {
+      root: join(root, "controller"),
+    });
     const factory = controller.factory({ ...scope, namespace: namespace("validation") });
     const receipts = [];
     try {
@@ -125,7 +122,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
         const start = (recover: boolean) =>
           factory.start({
             command: join(app, "Contents/MacOS", initial.manifest.identity.scheme),
-            slot: "host",
+            service: "host",
             generation: initial.envelope.digest,
             ready: `inspect-ready:${initial.envelope.digest}`,
             timeout: 15000,
@@ -169,6 +166,13 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
             assert.ok(active.renderer.includes("web-0.2.0"));
             assert.ok(String(active.daemon.witness).includes("daemon-0.2.0"));
           }
+          const osBefore = await observeProcesses(data, scope);
+          if (point === "daemon-stopped") assert.equal(osBefore.length, 0);
+          else {
+            assert.equal(osBefore.length, 1);
+            assert.ok(osBefore[0]?.processes.some((p) => p.pid === active.daemon.pid));
+            assert.notEqual(osBefore[0]?.supervisor.pid, active.daemon.pid);
+          }
           process.kill(lease.pid, "SIGKILL");
           await waitGone(lease.pid, 5000);
           const observed = await readBinding(data, scope);
@@ -191,6 +195,11 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
             ),
           ];
           for (const pid of pids) await waitGone(pid, 5000);
+          const osEnd = Date.now() + 5000;
+          while ((await observeProcesses(data, scope)).length && Date.now() < osEnd)
+            await new Promise((done) => setTimeout(done, 25));
+          const osAfter = await observeProcesses(data, scope);
+          assert.deepEqual(osAfter, []);
           const before = await readBinding(data, scope);
           const authorityFiles = [
             "manager.sqlite",
@@ -214,6 +223,8 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
             active,
             observed,
             trackedPids: pids,
+            osBefore,
+            osAfter,
             survivors: [],
             result: "passed",
             recovery: "blocked; not recovered",

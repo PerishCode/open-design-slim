@@ -70,7 +70,7 @@ it("consumes lifecycle sessions from the package boundary and preserves interrup
               lease = await scoped.start({
                 ...scope,
                 generation: identity.generation,
-                slot: "daemon",
+                service: "daemon",
                 command: process.execPath,
                 args: ["-e", "console.log('ready');setInterval(()=>{},1000)"],
                 ready: "ready",
@@ -135,7 +135,7 @@ it("consumes lifecycle sessions from the package boundary and preserves interrup
     const authority = "slim-session-test-authority";
     const manager = await worker(
       `import {serve} from ${JSON.stringify(sdk)};
-      const s=await serve(process.argv[1],undefined,process.argv[2]);console.log('ready');process.stdin.resume();
+      const s=await serve(process.argv[1], { authority: process.argv[2] });console.log('ready');process.stdin.resume();
       process.stdin.on('data',async()=>{try{await s.close();console.log('closed');}catch(e){console.log(e.message);}});`,
       [endpoint, authority],
     );

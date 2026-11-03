@@ -102,19 +102,14 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
       scope,
       sources: { feed: { directory: content } },
     });
-    const controller = await serve(
-      join(tmpdir(), `slim-leaf-${process.pid}.sock`),
-      undefined,
-      undefined,
-      join(root, "controller"),
-    );
+    const controller = await serve(join(tmpdir(), `slim-leaf-${process.pid}.sock`), { root: join(root, "controller") });
     const factory = controller.factory({ ...scope, namespace: namespace("validation") });
     let lease: Awaited<ReturnType<typeof factory.start>> | undefined;
     const observed: Status[] = [];
     const start = (recover = false, target = initial.envelope.digest) =>
       factory.start({
         command: join(app, "Contents/MacOS", initial.manifest.identity.scheme),
-        slot: "host",
+        service: "host",
         generation: target,
         ready: `inspect-ready:${target}`,
         timeout: 20000,

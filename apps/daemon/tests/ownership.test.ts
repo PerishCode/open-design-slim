@@ -15,7 +15,7 @@ const worker = `import {serve,Client} from ${JSON.stringify(sdk)};
 import {writeFile} from 'node:fs/promises';import {join} from 'node:path';
 let service;
 try {
-  service=await serve(process.argv[2],undefined,undefined,process.argv[1]);
+  service=await serve(process.argv[2], { root: process.argv[1] });
   const client=new Client(service.endpoint,service.authority);
   const data=await client.grant({channel:'stable',namespace:'slim'},{kind:'data',name:'probe',scope:'factory'});
   const staging=await client.grant({channel:'stable',namespace:'slim'},{kind:'staging',name:'probe',owner:'attempt',scope:'attempt'});

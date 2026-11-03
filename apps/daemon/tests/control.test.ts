@@ -56,7 +56,7 @@ it("validates hosted control and managed resource teardown", async () => {
         },
       },
     });
-    await assert.rejects(serve(join(root, "contender.sock"), undefined, undefined, root), /held/);
+    await assert.rejects(serve(join(root, "contender.sock"), { root: root }), /held/);
     await assert.rejects(Resources.open({ channel: channel("stable"), root, namespace: identity.namespace }), /held/);
     cases.push("manager and namespace ownership are exclusive before touching existing resources");
     const peer = await client.connect<Methods>(identity);
