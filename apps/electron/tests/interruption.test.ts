@@ -18,7 +18,8 @@ import { Sources } from "@perishcode/serve";
 import { observeProcesses, type RecoveryPlan, readBinding, serve } from "@perishcode/sidecar";
 import { it } from "vitest";
 
-it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E === "1")(
+const capsuleMode = process.env.PESUITE_CAPSULE_INTERRUPTION_E2E === "1";
+it.runIf(process.platform === "darwin" && (process.env.PESUITE_INTERRUPTION_E2E === "1" || capsuleMode))(
   "recovers real installed activation interruptions through root-wide explicit recovery",
   async () => {
     const repository = resolve("../.."),
@@ -77,13 +78,21 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
       PESUITE_BUILD: "daemon-0.2.0",
       PESUITE_UNIT_VERSION: "0.2.0",
     });
-    const candidate = await compose(initial.manifest, {
-      capsule: join(repository, "apps/capsule/dist"),
-      web: join(repository, "apps/web/dist"),
-      daemon: join(repository, "apps/daemon/dist"),
-      carrier: 1,
-      blobs: [{ slot: "probe", path: join(repository, "apps/capsule/dist/probe.bin") }],
-    });
+    const blob = join(root, "baseline-probe.bin");
+    await writeFile(blob, initial.assets.find((a) => a.artifact.kind === "blob")!.bytes);
+    if (capsuleMode) await run(["--filter", "@perishcode/slim-capsule", "build"], { PESUITE_BUILD: "capsule-0.2.0" });
+    const candidate = await compose(
+      capsuleMode
+        ? { ...initial.manifest, identity: { ...initial.manifest.identity, version: "0.2.0" } }
+        : initial.manifest,
+      {
+        capsule: join(repository, "apps/capsule/dist"),
+        web: join(repository, "apps/web/dist"),
+        daemon: join(repository, "apps/daemon/dist"),
+        carrier: 1,
+        blobs: [{ slot: "probe", path: blob }],
+      },
+    );
     const scope = { channel: initial.manifest.channel, namespace: namespace("slim") };
     const controller = await serve(join(tmpdir(), `slim-interruption-${process.pid}.sock`), {
       root: join(root, "controller"),
@@ -91,7 +100,9 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
     const factory = controller.factory({ ...scope, namespace: namespace("validation") });
     const receipts = [];
     try {
-      for (const point of ["prepared", "daemon-stopped", "ready", "committed"] as const) {
+      for (const point of capsuleMode
+        ? (["prepared", "capsule-stopped", "daemon-stopped", "ready", "committed"] as const)
+        : (["prepared", "daemon-stopped", "ready", "committed"] as const)) {
         const directory = join(root, point),
           data = join(directory, "data"),
           receipt = join(directory, "host.json");
@@ -117,6 +128,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
           PESUITE_RECEIPT: receipt,
           PESUITE_ACTIVATION_PAUSE: point,
           PESUITE_LEAF_ACTIVATE: "1",
+          PESUITE_CAPSULE_ACTIVATE: capsuleMode ? "1" : "0",
           PESUITE_FEED: sources.endpoints[0]?.url ?? "",
           PESUITE_FEED_KEY: pair.publicKey.export({ format: "pem", type: "spki" }).toString(),
           PESUITE_FEED_INTERVAL: "100",
@@ -126,6 +138,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
           if (resume) {
             delete runtimeEnv.PESUITE_ACTIVATION_PAUSE;
             runtimeEnv.PESUITE_LEAF_ACTIVATE = "0";
+            runtimeEnv.PESUITE_CAPSULE_ACTIVATE = "0";
           }
           return factory.start({
             command: join(app, "Contents/MacOS", initial.manifest.identity.scheme),
@@ -268,6 +281,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
           }>("host", selected);
           const restored = await restoredHost.call("status", null);
           assert.equal(restored.generation, selected);
+          assert.equal(restored.product?.version, capsuleMode && point === "committed" ? "0.2.0" : "0.1.0");
           assert.equal(restored.units.web.version, point === "committed" ? "0.2.0" : "0.1.0");
           assert.equal(restored.units.daemon.version, point === "committed" ? "0.2.0" : "0.1.0");
           assert.equal((await restoredHost.call("read", null)).retained, "factory-data");
@@ -300,6 +314,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INTERRUPTION_E2E =
             join(root, "receipt.json"),
             JSON.stringify(
               {
+                level: capsuleMode ? "capsule" : "leaf",
                 receipts,
                 scope:
                   "unsigned macOS registry; explicit dead-owner recovery, retained current/data and cold launch; no live adoption/power-loss/fullscreen claim",

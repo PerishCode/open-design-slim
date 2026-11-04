@@ -27,6 +27,7 @@ it("initializes its composition with managed resources and explicitly drains", a
                 blobs: { probe: path },
                 generation: digest("test"),
                 nonce: "test",
+                version: "0.1.0",
                 resources,
                 protocols: { internal: "od", external: "od-stable", origin: "od://carrier" },
                 daemon: { request: async () => ({}) },

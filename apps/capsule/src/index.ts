@@ -13,7 +13,7 @@ export function create(): Capsule {
       health: (_input, c) => c.daemon.request("health"),
       read: (_input, c) => c.daemon.request("read"),
       write: (input, c) => c.daemon.request("write", input),
-      echo: (input) => ({ input, source: "capsule-ipc" }),
+      echo: (input) => ({ input, source: "capsule-ipc", build }),
       open: (input, c) => {
         if (typeof input !== "string") throw new Error("invalid external URL");
         const url = new URL(input);
@@ -23,6 +23,7 @@ export function create(): Capsule {
       },
       lifecycle: () => ({
         build,
+        version: context?.version,
         launches,
         owner: context?.resources.incarnation,
         service: context?.resources.identity.service,
@@ -46,8 +47,8 @@ export function create(): Capsule {
       await writeFile(counter, String(launches));
       await writeFile(join(context.resources.roots.runtime, "active"), context.resources.incarnation);
       return {
-        loading: "Loading Open Design Slim",
-        window: { title: "Open Design Slim — Skeleton" },
+        loading: `Loading Open Design Slim ${build}`,
+        window: { title: `Open Design Slim — ${build}` },
         witness: `capsule:${build}:${resource}`,
       };
     },
