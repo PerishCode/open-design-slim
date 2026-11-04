@@ -5,7 +5,14 @@ import { connect } from "@";
 function bridge(): Bridge {
   let state: Record<string, unknown> = { launches: 3 };
   return {
-    bootstrap: { generation: "selected", nonce: "attempt", version: "0.1.0" },
+    call: async (method, input) => ({ method, input }),
+    bootstrap: {
+      origin: "od://carrier",
+      external: "od-stable",
+      generation: "selected",
+      nonce: "attempt",
+      version: "0.1.0",
+    },
     health: async () => ({ generation: "selected", nonce: "attempt" }),
     read: async () => state,
     write: async (value) => {

@@ -47,9 +47,11 @@ void startElectron({
             echo: { input: unknown; output: unknown };
             read: { input: unknown; output: unknown };
             write: { input: unknown; output: unknown };
+            adapter: { input: { method: string; value: unknown }; output: unknown };
           }>("host", {
             handlers: {
               status: snapshot,
+              adapter: (input) => session.call(input.method, input.value),
               echo: (input, context) => ({ input, identity: context.identity, incarnation: context.incarnation }),
               read: () => session.request("read"),
               write: (value) => session.request("write", value),

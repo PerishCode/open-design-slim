@@ -7,6 +7,10 @@ declare global {
 
 export async function connect(bridge: Bridge): Promise<number> {
   const health = await bridge.health();
+  if (typeof document !== "undefined") {
+    const echo = (await bridge.call("echo", { probe: "ipc" })) as { source: string };
+    if (echo.source !== "capsule-ipc") throw new Error("IPC adapter mismatch");
+  }
   const expected = bridge.bootstrap.daemon ?? bridge.bootstrap;
   if (health.generation !== expected.generation || health.nonce !== expected.nonce) {
     throw new Error("daemon generation mismatch");

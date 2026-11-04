@@ -16,14 +16,23 @@ it("initializes its composition with managed resources and explicitly drains", a
   try {
     const factory = host.factory({ channel: channel("stable"), namespace: namespace("test") });
     const attachment = await factory.expose<Record<string, { input: unknown; output: unknown }>>({
-      identity: { service: "capsule", generation: digest("test") },
-      handlers: body.handlers,
+      identity: { service: "electron", generation: digest("test") },
+      handlers: {},
       lifecycle: {
         initialize: async (resources) => {
           data = resources.roots.data;
           expect(
-            (await body.initialize({ blobs: { probe: path }, generation: digest("test"), nonce: "test", resources }))
-              .witness,
+            (
+              await body.initialize({
+                blobs: { probe: path },
+                generation: digest("test"),
+                nonce: "test",
+                resources,
+                protocols: { internal: "od", external: "od-stable", origin: "od://carrier" },
+                daemon: { request: async () => ({}) },
+                updates: { start: async () => {}, stop: async () => {} },
+              })
+            ).witness,
           ).toBe("capsule:test:blob:test");
         },
         stop: () => body.stop(),

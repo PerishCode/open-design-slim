@@ -19,7 +19,7 @@ runtime:
   channel: stable
   name: Open Design Slim
   namespace: slim
-  scheme: opendesignslim
+  scheme: od
   version: 0.1.0
 pipeline:
   carrier: apps/electron
