@@ -24,28 +24,29 @@
 
 ## Core file index
 
-| File or location                                           | Responsibility                                                               |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| package.json / pnpm-workspace.yaml / pnpm-lock.yaml        | three standard dispatchers, module membership and registry closure           |
-| .github/workflows/stable.release.yml / channel.release.yml | formal versus experimental quality selection and platform runners            |
-| pesuite.yaml / biome.json / .npmrc                         | guard/runtime/pipeline product layout, formatting and registry routing       |
-| apps/*/esbuild.config.mjs                                  | each module's own build, with no call back to the root                       |
-| apps/electron/src/main.ts                                  | host bootstrap and optional caller-owned status/echo contract                |
-| apps/capsule/src/index.ts                                  | executed composition entry and injected resource probe                       |
-| apps/web/src/index.ts / index.html                         | browser bridge and placeholder page                                          |
-| apps/daemon/src/main.ts                                    | published minimal daemon service                                             |
-| apps/capsule/tests/channel.test.ts                         | published release contract and explicit product channel identity             |
-| apps/daemon/tests/factory.test.ts                          | cross-channel resource isolation and unsupported-format refusal              |
-| apps/daemon/tests/sessions.test.ts                         | lifecycle batches, private nesting and interrupted owner fencing             |
-| apps/daemon/tests/directory.test.ts                        | factory continuity and interrupted read-only inventory                       |
-| apps/daemon/tests/ownership.test.ts                        | registry ownership, normal replacement and real SIGKILL acceptance           |
-| apps/daemon/tests/control.test.ts                          | hosted control and resource lifecycle acceptance                             |
-| apps/electron/tests/factory.test.ts                        | published SDK same-root/channel isolation and version continuity             |
-| apps/electron/tests/interruption.test.ts                   | real installed activation SIGKILL, offline facts and preserved authority     |
-| apps/electron/tests/leaf.test.ts                           | actual minimal-impact activation, compatibility, failure and normal recovery |
-| apps/electron/tests/discovery.test.ts                      | real installed automatic feed preparation, fault/retry and unchanged binding |
-| apps/electron/tests/skeleton.test.ts                       | opt-in real unsigned installed lifecycle acceptance                          |
-| .artifacts                                                 | generated seed, package, installed copies and execution receipts             |
+| File or location                                           | Responsibility                                                                |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| package.json / pnpm-workspace.yaml / pnpm-lock.yaml        | three standard dispatchers, module membership and registry closure            |
+| .github/workflows/stable.release.yml / channel.release.yml | formal versus experimental quality selection and platform runners             |
+| pesuite.yaml / biome.json / .npmrc                         | guard/runtime/pipeline product layout, formatting and registry routing        |
+| apps/*/esbuild.config.mjs                                  | each module's own build, with no call back to the root                        |
+| apps/electron/src/main.ts                                  | host bootstrap and optional caller-owned status/echo contract                 |
+| apps/capsule/src/index.ts                                  | executed composition entry and injected resource probe                        |
+| apps/web/src/index.ts / index.html                         | browser bridge and placeholder page                                           |
+| apps/daemon/src/main.ts                                    | published minimal daemon service                                              |
+| apps/capsule/tests/channel.test.ts                         | published release contract and explicit product channel identity              |
+| apps/daemon/tests/factory.test.ts                          | cross-channel resource isolation and unsupported-format refusal               |
+| apps/daemon/tests/sessions.test.ts                         | lifecycle batches, private nesting and interrupted owner fencing              |
+| apps/daemon/tests/directory.test.ts                        | factory continuity and interrupted read-only inventory                        |
+| apps/daemon/tests/ownership.test.ts                        | registry ownership, normal replacement and real SIGKILL acceptance            |
+| apps/daemon/tests/control.test.ts                          | hosted control and resource lifecycle acceptance                              |
+| apps/electron/tests/factory.test.ts                        | published SDK same-root/channel isolation and version continuity              |
+| apps/electron/tests/capsule.test.ts                        | actual automatic Capsule handoff, compatible sets and failed-adapter recovery |
+| apps/electron/tests/interruption.test.ts                   | real installed activation SIGKILL, offline facts and preserved authority      |
+| apps/electron/tests/leaf.test.ts                           | actual minimal-impact activation, compatibility, failure and normal recovery  |
+| apps/electron/tests/discovery.test.ts                      | real installed automatic feed preparation, fault/retry and unchanged binding  |
+| apps/electron/tests/skeleton.test.ts                       | opt-in real unsigned installed lifecycle acceptance                           |
+| .artifacts                                                 | generated seed, package, installed copies and execution receipts              |
 
 ## Iteration workflows
 
@@ -151,3 +152,9 @@ PESUITE_INTERRUPTION_E2E=1 now performs four installed activation interruptions,
 The product base scheme is od: application-local od://carrier URLs are channel independent, while package metadata and OS dispatch use od-<channel>://, including od-stable://. IPC and internal requests are document-epoch fenced; no credentials reach Web. Automatic app runs stay hidden/non-focusable and external links do not focus the window.
 Run skeleton+inspect to retain an installed app and verify loading/IPC/od:// plus owner resources. Then PESUITE_PROTOCOL_E2E=1 verifies real macOS open -g -a cold/warm delivery, using isolated data and background env. It selects the explicit app; global default resolution and simultaneous channels need separate evidence. Keep matrix receipts linked to #60/#4, and retain failed/interrupted roots.
 Next lanes: actual Capsule handoff (#14), file/archive blob loading/occupation (#16), installer executor survival/physical replacement (#15). User data remains stable across versions; runtime/locks/sockets/staging have exact owners; installation is shared by a product channel's namespaces with one coordinator. No private path construction, lifecycle aliases or business migration.
+
+
+### Capsule automatic update qualification
+
+PESUITE_CAPSULE_ACTIVATE=1 opts into HostOptions.updates.capsule. The stable bootstrapupdates service owns Capsule discovery/activation; Capsule ready/stop only starts/stops its leaf updates service. Do not let the product updater stop itself inside activation. Stable runtime drains accepted adapter/resource calls before taking the handoff lane and holds one committed collection.
+Run PESUITE_CAPSULE_E2E=1 for real installed Capsule-only, coordinated Web/Daemon, ABI/initialize failure and explicit cold recovery; it checks code/manifest version, actual title/loading, preserved data, unchanged installed bytes and no Capsule node. Run PESUITE_CAPSULE_INTERRUPTION_E2E=1 separately for five actual SIGKILL points, root recovery and committed-content cold selection. The latter shares interruption.test.ts but records level=capsule; ordinary leaf interruption stays separate. Runtime data and unchanged blob content remain retained; typed blob sharing/GC stays #16.

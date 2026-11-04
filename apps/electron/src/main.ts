@@ -37,6 +37,7 @@ void startElectron({
         intervalMs: Number(process.env.PESUITE_FEED_INTERVAL ?? 5000),
         timeoutMs: Number(process.env.PESUITE_FEED_TIMEOUT ?? 10000),
         activate: process.env.PESUITE_LEAF_ACTIVATE === "1",
+        capsule: process.env.PESUITE_CAPSULE_ACTIVATE === "1",
       }
     : undefined,
   inspect:

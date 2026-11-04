@@ -103,3 +103,6 @@ Explicit recovery (#56) consumes sidecar2.0 through `pesuite recover inspect|app
 
 
 Capsule adapts Electron to Web/Daemon: loading, caller-owned IPC, od:// local routing, od-<channel>:// external actions and leaf-update lifecycle. It has no sidecar identity; Electron owns resources. #60 corrects the previous hosted model. Run skeleton+inspect, then PESUITE_PROTOCOL_E2E=1 for actual macOS background cold/warm URL dispatch to the retained installed app. Automatic Capsule replacement, Electron installation updates and full blob occupancy/GC remain tracked separately in suite #14/#15/#16.
+
+
+Capsule handoff uses PESUITE_CAPSULE_ACTIVATE=1 alongside feed configuration. Stable bootstrap owns the Capsule observer, while loaded product code owns its leaf-update tasks. PESUITE_CAPSULE_E2E=1 verifies real installed Capsule-only/coordinated code replacement and failure recovery; PESUITE_CAPSULE_INTERRUPTION_E2E=1 verifies five handoff interruption/recovery points. Keep these probes separate and restore the normal build afterward. Capsule has artifact/version metadata and no sidecar identity.
