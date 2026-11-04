@@ -11,6 +11,7 @@ guard:
       - .state
       - .github
       - .github/workflows
+      - apps/electron/tests/distribution
   components:
     - packages/components
 runtime:
