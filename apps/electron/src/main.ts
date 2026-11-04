@@ -12,6 +12,7 @@ const config = JSON.parse(readFileSync(join(here, "host.json"), "utf8")) as Pick
 >;
 void startElectron({
   ...config,
+  namespace: process.env.PESUITE_NAMESPACE ?? config.namespace,
   root: process.env.PESUITE_DATA ?? join(app.getPath("appData"), config.manifest.identity.scheme),
   seed: app.isPackaged
     ? join(process.resourcesPath, "seed")
@@ -37,6 +38,14 @@ void startElectron({
         product: "io.perish.opendesignslim",
       }
     : undefined,
+  installation:
+    process.env.PESUITE_INSTALLATION === "1"
+      ? {
+          checkpoint: (["ready", "vacated", "displaced", "installed", "launched", "confirmed"] as const).find(
+            (value) => value === process.env.PESUITE_INSTALLATION_PAUSE,
+          ),
+        }
+      : undefined,
   updates: process.env.PESUITE_FEED
     ? {
         endpoint: process.env.PESUITE_FEED,
