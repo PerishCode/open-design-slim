@@ -12,20 +12,20 @@ importers:
         specifier: 2.6.4
         version: 2.6.4
       '@perishcode/cli':
-        specifier: 0.16.0
-        version: 0.16.0(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.17.0
+        version: 0.17.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/pack':
         specifier: 0.3.0
         version: 0.3.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/pipeline':
-        specifier: 0.4.0
-        version: 0.4.0(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.5.0
+        version: 0.5.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/release':
         specifier: 0.6.0
         version: 0.6.0
       '@perishcode/runtime':
-        specifier: 0.9.0
-        version: 0.9.0
+        specifier: 0.10.0
+        version: 0.10.0
       '@perishcode/sidecar':
         specifier: 2.0.0
         version: 2.0.0
@@ -48,12 +48,12 @@ importers:
   apps/capsule:
     dependencies:
       '@perishcode/runtime':
-        specifier: 0.9.0
-        version: 0.9.0
+        specifier: 0.10.0
+        version: 0.10.0
     devDependencies:
       '@perishcode/pipeline':
-        specifier: 0.4.0
-        version: 0.4.0(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.5.0
+        version: 0.5.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/protocol':
         specifier: 0.3.0
         version: 0.3.0
@@ -79,8 +79,8 @@ importers:
   apps/daemon:
     dependencies:
       '@perishcode/runtime':
-        specifier: 0.9.0
-        version: 0.9.0
+        specifier: 0.10.0
+        version: 0.10.0
     devDependencies:
       '@perishcode/protocol':
         specifier: 0.3.0
@@ -107,15 +107,21 @@ importers:
   apps/electron:
     dependencies:
       '@perishcode/electron':
-        specifier: 0.9.0
-        version: 0.9.0(electron@41.3.0)
+        specifier: 0.10.0
+        version: 0.10.0(electron@41.3.0)
     devDependencies:
+      '@aws-sdk/client-s3':
+        specifier: 3.1161.0
+        version: 3.1161.0
       '@perishcode/automation':
         specifier: 0.1.0
         version: 0.1.0
       '@perishcode/cli':
-        specifier: 0.16.0
-        version: 0.16.0(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.17.0
+        version: 0.17.0(electron-builder-squirrel-windows@26.8.1)
+      '@perishcode/distribution':
+        specifier: 0.1.0
+        version: 0.1.0
       '@perishcode/inspect':
         specifier: 0.3.0
         version: 0.3.0
@@ -132,8 +138,8 @@ importers:
         specifier: 0.6.0
         version: 0.6.0
       '@perishcode/runtime':
-        specifier: 0.9.0
-        version: 0.9.0
+        specifier: 0.10.0
+        version: 0.10.0
       '@perishcode/serve':
         specifier: 0.4.0
         version: 0.4.0
@@ -141,8 +147,8 @@ importers:
         specifier: 2.0.0
         version: 2.0.0
       '@perishcode/update':
-        specifier: 0.5.0
-        version: 0.5.0
+        specifier: 0.6.0
+        version: 0.6.0
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
@@ -162,8 +168,8 @@ importers:
   apps/web:
     devDependencies:
       '@perishcode/electron':
-        specifier: 0.9.0
-        version: 0.9.0(electron@41.3.0)
+        specifier: 0.10.0
+        version: 0.10.0(electron@41.3.0)
       '@perishcode/release':
         specifier: 0.6.0
         version: 0.6.0
@@ -184,6 +190,78 @@ packages:
 
   7zip-bin@5.2.0:
     resolution: {integrity: sha512-ukTPVhqG4jNzMro2qA9HSCSSVJN3aN7tlb+hfqYCt3ER0yWroeA2VR38MNrOHLQ/cVj+DaIMad0kFCtWWowh/A==}
+
+  '@aws-sdk/checksums@3.1002.1':
+    resolution: {integrity: sha512-CXNESwkQC9jdrUG6cKXBfudVt1frGcYQykcCYbNclVrsewuGMbo3PlFjRteMe4OftNAqhyc3xC2jTz7SUqLasQ==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/client-s3@3.1161.0':
+    resolution: {integrity: sha512-iRZGMsJnYRrI98O+U6o5fHeLPQTP+Dc/w0mWLcBLQcEQ10DA06+XQj0WmdRiCM7vIso7QEtN1fsj9Vzo5/R3LQ==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/core@3.979.1':
+    resolution: {integrity: sha512-ayOlV1VhLNMiq8PW9ZkVobG4gkldnUoHjG69yy2b8j+VYFlhz/uAL7ZdYQAoQ+eShtGUdNDnnG5rxDg6yUJrOg==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/credential-provider-env@3.972.80':
+    resolution: {integrity: sha512-uO5TiSvb6j1w9RTe5z28OaOmsrOxVQUPaC5+wZl50RfOXcrYD/KgnS8I9lfyGXc7sGbkCopK6VnhNIAoLqfewQ==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/credential-provider-http@3.972.82':
+    resolution: {integrity: sha512-vQzlDHlC24Yz42p+rT4NBoP/5VdetkBoujbOLq9h6QYWC8THuZSPYnXIR9OP3XcOrdMgPBBipOrdssfxnIiWUg==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/credential-provider-ini@3.973.25':
+    resolution: {integrity: sha512-b5xl71uCRdWsu7P1VeGpiGuCf6zfYETsSNOv8AmYVTrsgbvTJRXdmmOPVfxkvGGVNsiKkGctClQW3jAn0SZLug==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/credential-provider-login@3.972.87':
+    resolution: {integrity: sha512-C4ZFmcwM+Zj14Z8huVUk54Gv4uzT1ZdzG9cY3Gdh8FePakq7Bss1OFsgZjAhWFOkFOGpBvFBeu0OWjWf8HNKRQ==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/credential-provider-node@3.972.92':
+    resolution: {integrity: sha512-jC3zmOo7Qxlk+oBivvSsS1Ph7sFGm0QfuhqDGbqgRXi4cxUYMG+dWtBwS2XYYXgc8TIVXJiwgQ65sbNpbYupTA==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/credential-provider-process@3.972.80':
+    resolution: {integrity: sha512-xqfixO5aclje7tbQJDias+iNND5wp/3QZixCdZcVQpgWPTZ0V5DfTW9A804A5Z7ezu7sH3WRO+vzUjtiJBA8yg==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/credential-provider-sso@3.973.24':
+    resolution: {integrity: sha512-nlg3BKG03Cgzvv/dMnhxvDJPhAhQSpaN0RUdwgU7ziwkasoev7iI8el8Xy4Rd5sqzgaDUbV269fOXck5SargqA==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/credential-provider-web-identity@3.972.86':
+    resolution: {integrity: sha512-zKTyLJBEyfQBVlYqT6Jt+mYV4r8kGbWM7dn6v4Y4MRARizhYafjDXP/iMu76UMRhToSPNmIKX1XAb24gtpBFIA==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/middleware-sdk-s3@3.972.85':
+    resolution: {integrity: sha512-Kyl2G6zhIS9qFoeLdlxvXFrWyc6g9D9ZCIRJnGkkfX6JZhxCZB5ebXBc7GKEeetrnhXcail6ALZT0lKbojcaNA==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/nested-clients@3.997.54':
+    resolution: {integrity: sha512-/OczlavsS7U5sOodRO10Ug4R/AKFVZiXTstKipWe68EfjPkmdDFNXNl9FCJyXWkg1DG6RBm3qAuVB8FNW9O8KQ==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/signature-v4-multi-region@3.996.51':
+    resolution: {integrity: sha512-+aHvUugVBuMPXxgkPfWnTMyGdE/yWS8GHi5+qQ37HowS0YqzrbuaDLznj+Dtmtu5jgCdqz36gXmujOToUhNNWw==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/token-providers@3.1161.0':
+    resolution: {integrity: sha512-ypbXSofNcSHwf/KA40bFCXJb0MLaAKrfT7sot4dFaA+2lsuXNah4zLRJIAU7Qmvs9PFJ6rnY0bZFEC+mE7attA==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/types@3.975.0':
+    resolution: {integrity: sha512-WQlhs6juByzWOzj5fwxOx0mPJaEqMcG/sDpl3Id61B3XhKE63xY+0QWcnG+sWR/sCfprmreyUo1lM7IKZmHMzw==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/xml-builder@3.972.42':
+    resolution: {integrity: sha512-smX8/gNP8Kjq+CWTBMZQLQ912vOQjiWExzwzvMO+eujPB5RY8IbtF0AGdUUXHKN7KoDWK9dIcuW0WG269kiP6w==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws/lambda-invoke-store@0.3.0':
+    resolution: {integrity: sha512-sl4Bm6yiMNYrZKkqqDFWN0UfnWhlS8ivKxrYl+6t0gCLrqr8y3B2IqZZbFRkfaVVp7C/baApyh71P+LeE1A2sQ==}
+    engines: {node: '>=18.0.0'}
 
   '@babel/helper-string-parser@8.0.8':
     resolution: {integrity: sha512-fVM+gSuKbdv9cpmyRNh5EvsDHUZCdxQH3FdnFKSkNYHpbsn95bbrxm+ES3MVeQjcqwi2O5ur/DjLfmTQaO60ng==}
@@ -497,8 +575,8 @@ packages:
     resolution: {integrity: sha512-KDCOARMnoMybtO4VsouKHy+wSv6vMR7J79i4zvrSUnyPAleawkQVFBE/DaZaPSd2gU5vMF0WiFzVzg2VsTYlFA==, tarball: https://npm.pkg.github.com/download/@perishcode/blob/0.1.0/613fea7d631104f7a6a5647f4b87577b7fd74aaa}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/cli@0.16.0':
-    resolution: {integrity: sha512-JdtECC2SqsZxaGe04RxKssIRiRqeQCPeRaGfIsV5pbyd6gEGpb59dJJCF4qqtgw1kToM2IDc1CtTbiYyjiXbqg==, tarball: https://npm.pkg.github.com/download/@perishcode/cli/0.16.0/519f5afd67e9c4c59de219f4b72c97b7992fd3a3}
+  '@perishcode/cli@0.17.0':
+    resolution: {integrity: sha512-o8HrVBsFdSLL7xE4+cKPMJ45gleyXZ6HGPmcNT7TDTWU7GVHDVLOL46qmUEKSIqzSUIl67qFQkdysi4klMSWZQ==, tarball: https://npm.pkg.github.com/download/@perishcode/cli/0.17.0/49ca16e2932327af9533f74e55eff73e38e787a2}
     engines: {node: '>=24'}
     hasBin: true
 
@@ -506,14 +584,18 @@ packages:
     resolution: {integrity: sha512-EbDP0yCPbaSFGhQt/F5yA+e7R9+x8HE6xXqOovs+QyFF99YHGjV+9I8doplqCR5EzAiwhhY2NqV2oiSERkze7A==, tarball: https://npm.pkg.github.com/download/@perishcode/config/0.3.0/1f88f2afadbc0273243b54c7b9bb409c40525de6}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/electron@0.9.0':
-    resolution: {integrity: sha512-K+4lYq5B5WTIJJKIj1o1kR2WNU0fCwZEoAfOENKs5CKCB2qQIm9V02W5zIGZjdVbk10hm0zaNHuYGpesh8okIQ==, tarball: https://npm.pkg.github.com/download/@perishcode/electron/0.9.0/076b0a4cd6c6f1c4440381893078fd1bb3ee7fcc}
+  '@perishcode/distribution@0.1.0':
+    resolution: {integrity: sha512-zMgNY4IGeioHDtMFrVIUotfnKa/mUzat100CokOkzLxKanI7CDTniBK8mFr4XycWRmxKOi5h4i2MVejoMocfOA==, tarball: https://npm.pkg.github.com/download/@perishcode/distribution/0.1.0/bf8035acf3f554e396b8f2631362646d241193da}
+    engines: {node: '>=24.0.0'}
+
+  '@perishcode/electron@0.10.0':
+    resolution: {integrity: sha512-TZH6a6vdaq81pciXksfsGXJ5dFJEv1Oe0KHOXQAbNvaAK6kuUqVfTecZi/om1xrcq/oMmH2E9eRshEdSIk1fgg==, tarball: https://npm.pkg.github.com/download/@perishcode/electron/0.10.0/f1b45acd93ce0e52f2da4db4e6150945143bcb2a}
     engines: {node: '>=24.0.0'}
     peerDependencies:
       electron: 41.3.0
 
-  '@perishcode/guard@0.5.1':
-    resolution: {integrity: sha512-yAsHGYlC/ij4GMxkJfNnbTr1lZAo9mRHBtNxjqDrdJwlJ9G17w1zE5i+B7i5vm5aZNbGZP5jj1u4CMp1MsCcgw==, tarball: https://npm.pkg.github.com/download/@perishcode/guard/0.5.1/52f063befffb151c13ebbf295011ed63a6713c90}
+  '@perishcode/guard@0.5.2':
+    resolution: {integrity: sha512-nq8Aybhar93pr29FxIt/0cDDKywbd3tqEklGwSRECfPKqdnQK/0mR0k5QS3QFKkeo4OGzGPx2oMuhuidlN/62w==, tarball: https://npm.pkg.github.com/download/@perishcode/guard/0.5.2/f8966bfa150570c122937a4c9656a7cf1c874e7e}
     engines: {node: '>=24'}
 
   '@perishcode/inspect@0.3.0':
@@ -524,8 +606,8 @@ packages:
     resolution: {integrity: sha512-9pqY8lBMlFIBEV963bDa5fXk5hegTyAVBwvMwrcHgb5f/80tD+9+y4MG2zwIddYMwn24MORIDcQrR6o2i+sj0g==, tarball: https://npm.pkg.github.com/download/@perishcode/pack/0.3.0/e3ed84a9911c03206184436ae87e89a0b8fb02ae}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/pipeline@0.4.0':
-    resolution: {integrity: sha512-IuTuoipkKgSjUMf8UIMHwRediB1S92EYqoOCftZwx8/i3hJgl1qWQbWiEZkYqQd9Di5RklxbHMf5nQmWzpmm0g==, tarball: https://npm.pkg.github.com/download/@perishcode/pipeline/0.4.0/42f3e2c326c90203c78cd7370ae400abfe91459d}
+  '@perishcode/pipeline@0.5.0':
+    resolution: {integrity: sha512-3+gUpISeVlHZQjCtn1fAwsTQue450o9fBPy+fopSS4WaQ64uhVQrZ23PxOdl/PShjmbrOvIr3KI+S7mneetLyQ==, tarball: https://npm.pkg.github.com/download/@perishcode/pipeline/0.5.0/0ac73763efe7e896e204c0a446a3718ce077fa5b}
     engines: {node: '>=24.0.0'}
 
   '@perishcode/protocol@0.1.0':
@@ -544,8 +626,8 @@ packages:
     resolution: {integrity: sha512-lZULYVIhPv7EN5LgQzxhKSBRPBuTCSVs5avSNbG9Rh1okG6asYnz9uv33icCVixsxInapPbrXv8ZrBI+ha/F9Q==, tarball: https://npm.pkg.github.com/download/@perishcode/release/0.6.0/03b16946209e24ed5d310505282989b0a4f67ccc}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/runtime@0.9.0':
-    resolution: {integrity: sha512-1U7k4pDQ/N5ukIJQ4EzfZvKDVzCNQFmmSC0fzcvJrOhWdpLx44PnOIQq0f/2U5hUq+AiSc/AhsAJJnj20/GEeg==, tarball: https://npm.pkg.github.com/download/@perishcode/runtime/0.9.0/a4ead7a78b0e23afef90d26eecdb93dcd670ad75}
+  '@perishcode/runtime@0.10.0':
+    resolution: {integrity: sha512-rbhUs2998Tywc2K5Ja/lTiRmf4ZijnZFHT1njhalBudYAl3FIf4S0JTxgenUuwqvrHgrVPnazmYy2Z9BZzdpZQ==, tarball: https://npm.pkg.github.com/download/@perishcode/runtime/0.10.0/b622161c20b00f59e55525fa7187a4b2dd574500}
     engines: {node: '>=24.0.0'}
 
   '@perishcode/serve@0.4.0':
@@ -556,8 +638,8 @@ packages:
     resolution: {integrity: sha512-X8UiLBksOuYQ3nZj3Dzw6qpjzJHCeYGAtO9LoxcV2uSyJSYK2szSizdG21SJXuwZKtd/yiH0o64pbHIveBu5Jg==, tarball: https://npm.pkg.github.com/download/@perishcode/sidecar/2.0.0/d0a417831a7d1db7cad1c2c01eed29a4f08f7b4b}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/update@0.5.0':
-    resolution: {integrity: sha512-3VPqMO9FlIrTKn1Bgia4fDRLOk03U8+PzG4UTyQDElrS2t1eAbkQFRE7PxY8m5s33b5JgZrmScLK3MK4WSWVDQ==, tarball: https://npm.pkg.github.com/download/@perishcode/update/0.5.0/ab0a38cc7c64875a6335217c773f6dd3a79915e3}
+  '@perishcode/update@0.6.0':
+    resolution: {integrity: sha512-eAXLepFy9f5CiiuFRCahRxCkASvke0M+D1vBevOD6UlaB+E9Lgz8NmQo3XO1uegrW4FtSAk3QMtxPC2hvpJR/g==, tarball: https://npm.pkg.github.com/download/@perishcode/update/0.6.0/e9435ed965783aa50c733bc841039fbb7686dd02}
     engines: {node: '>=24.0.0'}
 
   '@rolldown/binding-android-arm-eabi@1.2.15':
@@ -662,6 +744,30 @@ packages:
   '@sindresorhus/is@4.6.0':
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
+
+  '@smithy/core@3.38.1':
+    resolution: {integrity: sha512-U/mB2XiwTLaf+NSgLSWwJfptsMT/H8aBi0aTAA/E5e2/TagFeGCqAyhKGG0w0A9IWTkm4qYEmLoD/HB6aYfnRA==}
+    engines: {node: '>=18.0.0'}
+
+  '@smithy/credential-provider-imds@4.5.2':
+    resolution: {integrity: sha512-A9uSdn72ozbRUSit0eib0TW7nXuNPlaeM0zcGkJ+nE6tFcSDbnmtwoxbTCFBukVQcszDAyvsd7+rTduPTXpygg==}
+    engines: {node: '>=18.0.0'}
+
+  '@smithy/fetch-http-handler@5.8.0':
+    resolution: {integrity: sha512-ycSJu3tFAQ4v04CBB0agqFMVsSQ1iG3yw+SpgxRqKfaURpQD4CZ8Wn0zPMmSnOuTpTh65Vz+EA0rMrw089wvkA==}
+    engines: {node: '>=18.0.0'}
+
+  '@smithy/node-http-handler@4.14.1':
+    resolution: {integrity: sha512-/T6E1jzCL0fErS9uq8JqES/5yYQQ4ppVmmYHwXw2nlov8KFzLb+3QqHR5iAun1BsuAB50IPxZliV8YMgghLwhA==}
+    engines: {node: '>=18.0.0'}
+
+  '@smithy/signature-v4@5.7.5':
+    resolution: {integrity: sha512-WPjdr5oWOk1LArpI4pavu+fSo+/evi0Re1olxGvqwuZopd4gYR1UGCi+Soyn/IjmafqbWs+ZC+3AKxJS3ZpwUg==}
+    engines: {node: '>=18.0.0'}
+
+  '@smithy/types@4.19.0':
+    resolution: {integrity: sha512-r7jh49VJxGerfAcTQA6gXcKc+98zOp/tqRwzYjgOE+iSQsP6cEU1hq2QzbuipmP68QtYdY9wKEhiCQZIzHgZ4Q==}
+    engines: {node: '>=18.0.0'}
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -945,6 +1051,9 @@ packages:
   boolean@3.2.0:
     resolution: {integrity: sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw==}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+
+  bowser@2.15.0:
+    resolution: {integrity: sha512-xic6KSZglg/I4ymp45fdM4GWfYpBK79Fxd/TOvJktlaPgQqqDxvmGwOPZl2V0dyeS3Lj5c180bLhXF43iyAjZQ==}
 
   brace-expansion@1.1.21:
     resolution: {integrity: sha512-9zeA+KLZNNzglF2TPKRQEDyx6Yby7daAkuy8MiPzpXPsYDWi/DRM8jmwUDxokQjYqBpv5DgPiwD4h4ZZSy1Ujw==}
@@ -1875,6 +1984,9 @@ packages:
   truncate-utf8-bytes@1.0.2:
     resolution: {integrity: sha512-95Pu1QXQvruGEhv62XCMO3Mm90GscOCClvrIUwCM0PYOXK3kaF3l3sIHxx71ThJfcbM2O5Au6SO3AWCSEfW4mQ==}
 
+  tslib@2.9.1:
+    resolution: {integrity: sha512-a4Ux9VKuIMHsOS7ENbEq6hK2ZGYIT27Rtl0E4eD9KqwxhKiQeMZE/9xb3IdYwWaSOyIBQLExhQgXDTYoiCxnWA==}
+
   type-fest@0.13.1:
     resolution: {integrity: sha512-34R7HTnG0XIJcBSn5XhDd7nNFPRcXYRZrBB2O2jdKqYODldSzBAqzsWoZYYvduky73toYS/ESqxPvkDf/F0XMg==}
     engines: {node: '>=10'}
@@ -2058,6 +2170,171 @@ packages:
 snapshots:
 
   7zip-bin@5.2.0: {}
+
+  '@aws-sdk/checksums@3.1002.1':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/client-s3@3.1161.0':
+    dependencies:
+      '@aws-sdk/checksums': 3.1002.1
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/credential-provider-node': 3.972.92
+      '@aws-sdk/middleware-sdk-s3': 3.972.85
+      '@aws-sdk/signature-v4-multi-region': 3.996.51
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/fetch-http-handler': 5.8.0
+      '@smithy/node-http-handler': 4.14.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/core@3.979.1':
+    dependencies:
+      '@aws-sdk/types': 3.975.0
+      '@aws-sdk/xml-builder': 3.972.42
+      '@aws/lambda-invoke-store': 0.3.0
+      '@smithy/core': 3.38.1
+      '@smithy/signature-v4': 5.7.5
+      '@smithy/types': 4.19.0
+      bowser: 2.15.0
+      tslib: 2.9.1
+
+  '@aws-sdk/credential-provider-env@3.972.80':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/credential-provider-http@3.972.82':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/fetch-http-handler': 5.8.0
+      '@smithy/node-http-handler': 4.14.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/credential-provider-ini@3.973.25':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/credential-provider-env': 3.972.80
+      '@aws-sdk/credential-provider-http': 3.972.82
+      '@aws-sdk/credential-provider-login': 3.972.87
+      '@aws-sdk/credential-provider-process': 3.972.80
+      '@aws-sdk/credential-provider-sso': 3.973.24
+      '@aws-sdk/credential-provider-web-identity': 3.972.86
+      '@aws-sdk/nested-clients': 3.997.54
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/credential-provider-imds': 4.5.2
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/credential-provider-login@3.972.87':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/nested-clients': 3.997.54
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/credential-provider-node@3.972.92':
+    dependencies:
+      '@aws-sdk/credential-provider-env': 3.972.80
+      '@aws-sdk/credential-provider-http': 3.972.82
+      '@aws-sdk/credential-provider-ini': 3.973.25
+      '@aws-sdk/credential-provider-process': 3.972.80
+      '@aws-sdk/credential-provider-sso': 3.973.24
+      '@aws-sdk/credential-provider-web-identity': 3.972.86
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/credential-provider-imds': 4.5.2
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/credential-provider-process@3.972.80':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/credential-provider-sso@3.973.24':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/nested-clients': 3.997.54
+      '@aws-sdk/token-providers': 3.1161.0
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/credential-provider-web-identity@3.972.86':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/nested-clients': 3.997.54
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/middleware-sdk-s3@3.972.85':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/signature-v4-multi-region': 3.996.51
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/nested-clients@3.997.54':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/signature-v4-multi-region': 3.996.51
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/fetch-http-handler': 5.8.0
+      '@smithy/node-http-handler': 4.14.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/signature-v4-multi-region@3.996.51':
+    dependencies:
+      '@aws-sdk/types': 3.975.0
+      '@smithy/signature-v4': 5.7.5
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/token-providers@3.1161.0':
+    dependencies:
+      '@aws-sdk/core': 3.979.1
+      '@aws-sdk/nested-clients': 3.997.54
+      '@aws-sdk/types': 3.975.0
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/types@3.975.0':
+    dependencies:
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws-sdk/xml-builder@3.972.42':
+    dependencies:
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@aws/lambda-invoke-store@0.3.0': {}
 
   '@babel/helper-string-parser@8.0.8': {}
 
@@ -2318,15 +2595,15 @@ snapshots:
     dependencies:
       '@perishcode/protocol': 0.1.0
 
-  '@perishcode/cli@0.16.0(electron-builder-squirrel-windows@26.8.1)':
+  '@perishcode/cli@0.17.0(electron-builder-squirrel-windows@26.8.1)':
     dependencies:
-      '@perishcode/guard': 0.5.1
+      '@perishcode/guard': 0.5.2
       '@perishcode/inspect': 0.3.0
       '@perishcode/pack': 0.3.0(electron-builder-squirrel-windows@26.8.1)
-      '@perishcode/pipeline': 0.4.0(electron-builder-squirrel-windows@26.8.1)
+      '@perishcode/pipeline': 0.5.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/protocol': 0.3.0
       '@perishcode/release': 0.6.0
-      '@perishcode/runtime': 0.9.0
+      '@perishcode/runtime': 0.10.0
       '@perishcode/serve': 0.4.0
       '@perishcode/sidecar': 2.0.0
     transitivePeerDependencies:
@@ -2337,14 +2614,22 @@ snapshots:
     dependencies:
       '@perishcode/protocol': 0.3.0
 
-  '@perishcode/electron@0.9.0(electron@41.3.0)':
+  '@perishcode/distribution@0.1.0':
     dependencies:
+      '@aws-sdk/client-s3': 3.1161.0
+      '@perishcode/protocol': 0.3.0
+      '@perishcode/publish': 0.4.0
       '@perishcode/release': 0.6.0
-      '@perishcode/runtime': 0.9.0
-      '@perishcode/update': 0.5.0
+
+  '@perishcode/electron@0.10.0(electron@41.3.0)':
+    dependencies:
+      '@perishcode/distribution': 0.1.0
+      '@perishcode/release': 0.6.0
+      '@perishcode/runtime': 0.10.0
+      '@perishcode/update': 0.6.0
       electron: 41.3.0
 
-  '@perishcode/guard@0.5.1':
+  '@perishcode/guard@0.5.2':
     dependencies:
       '@babel/parser': 8.0.8
       parse5: 8.0.1
@@ -2365,10 +2650,10 @@ snapshots:
       - electron-builder-squirrel-windows
       - supports-color
 
-  '@perishcode/pipeline@0.4.0(electron-builder-squirrel-windows@26.8.1)':
+  '@perishcode/pipeline@0.5.0(electron-builder-squirrel-windows@26.8.1)':
     dependencies:
       '@perishcode/automation': 0.1.0
-      '@perishcode/guard': 0.5.1
+      '@perishcode/guard': 0.5.2
       '@perishcode/pack': 0.3.0(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/protocol': 0.3.0
       '@perishcode/release': 0.6.0
@@ -2391,7 +2676,7 @@ snapshots:
       '@perishcode/config': 0.3.0
       '@perishcode/protocol': 0.3.0
 
-  '@perishcode/runtime@0.9.0':
+  '@perishcode/runtime@0.10.0':
     dependencies:
       '@perishcode/blob': 0.1.0
       '@perishcode/protocol': 0.3.0
@@ -2410,7 +2695,7 @@ snapshots:
     dependencies:
       '@perishcode/protocol': 0.3.0
 
-  '@perishcode/update@0.5.0':
+  '@perishcode/update@0.6.0':
     dependencies:
       '@perishcode/blob': 0.1.0
       '@perishcode/protocol': 0.3.0
@@ -2465,6 +2750,39 @@ snapshots:
   '@rolldown/pluginutils@1.0.1': {}
 
   '@sindresorhus/is@4.6.0': {}
+
+  '@smithy/core@3.38.1':
+    dependencies:
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@smithy/credential-provider-imds@4.5.2':
+    dependencies:
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@smithy/fetch-http-handler@5.8.0':
+    dependencies:
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@smithy/node-http-handler@4.14.1':
+    dependencies:
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@smithy/signature-v4@5.7.5':
+    dependencies:
+      '@smithy/core': 3.38.1
+      '@smithy/types': 4.19.0
+      tslib: 2.9.1
+
+  '@smithy/types@4.19.0':
+    dependencies:
+      tslib: 2.9.1
 
   '@standard-schema/spec@1.1.0': {}
 
@@ -2723,6 +3041,8 @@ snapshots:
 
   boolean@3.2.0:
     optional: true
+
+  bowser@2.15.0: {}
 
   brace-expansion@1.1.21:
     dependencies:
@@ -3728,6 +4048,8 @@ snapshots:
   truncate-utf8-bytes@1.0.2:
     dependencies:
       utf8-byte-length: 1.0.5
+
+  tslib@2.9.1: {}
 
   type-fest@0.13.1:
     optional: true

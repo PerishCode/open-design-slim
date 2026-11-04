@@ -23,7 +23,7 @@ it("consumes the shared pipeline contract and leaves the release quality gap in 
   assert.ok([...stable, ...experimental].every((entry) => !entry.includes("\n")));
   const file = createRequire(import.meta.url).resolve("@perishcode/pipeline");
   const version = JSON.parse(await readFile(join(dirname(dirname(file)), "package.json"), "utf8")).version;
-  assert.equal(version, "0.4.0");
+  assert.equal(version, "0.5.0");
   await mkdir("../../.artifacts/pipeline", { recursive: true });
   await writeFile(
     "../../.artifacts/pipeline/contract.json",

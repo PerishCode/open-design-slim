@@ -3,7 +3,7 @@ import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type HostOptions, startElectron } from "@perishcode/electron";
-import { app } from "electron";
+import { app, BrowserWindow } from "electron";
 
 const here = fileURLToPath(new URL(".", import.meta.url));
 const config = JSON.parse(readFileSync(join(here, "host.json"), "utf8")) as Pick<
@@ -30,6 +30,13 @@ void startElectron({
           await new Promise<void>(() => {});
         }
       : undefined,
+  distribution: process.env.PESUITE_DISTRIBUTION
+    ? {
+        endpoint: process.env.PESUITE_DISTRIBUTION,
+        publickey: process.env.PESUITE_FEED_KEY ?? "",
+        product: "io.perish.opendesignslim",
+      }
+    : undefined,
   updates: process.env.PESUITE_FEED
     ? {
         endpoint: process.env.PESUITE_FEED,
@@ -44,6 +51,7 @@ void startElectron({
     process.env.PESUITE_INSPECT === "1" || process.env.PESUITE_FEED
       ? async (session, receipt, quit, snapshot) => {
           await session.expose<{
+            native: { input: null; output: unknown };
             status: { input: unknown; output: unknown };
             echo: { input: unknown; output: unknown };
             read: { input: unknown; output: unknown };
@@ -51,6 +59,16 @@ void startElectron({
             adapter: { input: { method: string; value: unknown }; output: unknown };
           }>("host", {
             handlers: {
+              native: async () => {
+                if (process.env.PESUITE_DISTRIBUTION_PROBE !== "1") throw new Error("native probe is disabled");
+                const window = BrowserWindow.getAllWindows().find((w) =>
+                  w.webContents.getURL().startsWith("data:text/html"),
+                );
+                if (!window) throw new Error("native blocking window missing");
+                return window.webContents.executeJavaScript(
+                  `document.querySelector('a[href="pesuite-update://retry"]')?.click(); "clicked"`,
+                );
+              },
               status: snapshot,
               adapter: (input) => session.call(input.method, input.value),
               echo: (input, context) => ({ input, identity: context.identity, incarnation: context.incarnation }),
