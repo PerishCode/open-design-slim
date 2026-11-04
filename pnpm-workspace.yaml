@@ -2,6 +2,15 @@ packages:
   - apps/*
   - packages/*
 minimumReleaseAgeExclude:
+  - "@perishcode/guard@0.5.2"
+  - "@perishcode/runtime@0.10.0"
+  - "@perishcode/update@0.6.0"
+  - "@perishcode/electron@0.10.0"
+  - "@perishcode/pipeline@0.5.0"
+  - "@perishcode/cli@0.17.0"
+  - "@perishcode/distribution@0.1.0"
+  - "@aws-sdk/*"
+  - "@smithy/*"
   - "@perishcode/runtime@0.9.0"
   - "@perishcode/electron@0.9.0"
   - "@perishcode/update@0.5.0"

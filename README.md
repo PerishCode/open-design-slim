@@ -106,3 +106,6 @@ Capsule adapts Electron to Web/Daemon: loading, caller-owned IPC, od:// local ro
 
 
 Capsule handoff uses PESUITE_CAPSULE_ACTIVATE=1 alongside feed configuration. Stable bootstrap owns the Capsule observer, while loaded product code owns its leaf-update tasks. PESUITE_CAPSULE_E2E=1 verifies real installed Capsule-only/coordinated code replacement and failure recovery; PESUITE_CAPSULE_INTERRUPTION_E2E=1 verifies five handoff interruption/recovery points. Keep these probes separate and restore the normal build afterward. Capsule has artifact/version metadata and no sidecar identity.
+
+
+Local object-store acceptance uses the pinned docker-compose.yml Silo. The distribution probe verifies signed metadata, a real S3-delivered content update, native minimum-shell blocking and compatible-shell admission; see AGENTS.md for the explicit commands. Physical installation replacement remains a separate acceptance gate.
