@@ -2,6 +2,12 @@ packages:
   - apps/*
   - packages/*
 minimumReleaseAgeExclude:
+  - "@perishcode/release@0.6.0"
+  - "@perishcode/pack@0.3.0"
+  - "@perishcode/runtime@0.8.0"
+  - "@perishcode/electron@0.8.0"
+  - "@perishcode/pipeline@0.4.0"
+  - "@perishcode/cli@0.15.0"
   - "@perishcode/runtime@0.7.0"
   - "@perishcode/electron@0.7.0"
   - "@perishcode/cli@0.14.0"

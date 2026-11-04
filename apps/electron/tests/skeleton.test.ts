@@ -175,8 +175,9 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
       const cold = await step("cold start", () => launch("cold"));
       assert.equal(cold.renderer, "web:skeleton1:launch2");
       assert.ok(initial.product && cold.product);
-      assert.notEqual(initial.product.incarnation, cold.product.incarnation);
-      assert.equal(initial.product.identity.generation, first.envelope.generation.capsule.digest);
+      assert.deepEqual(initial.product, cold.product);
+      assert.ok(initial.directory.instances.every((x) => x.service !== "capsule"));
+      assert.equal(initial.product.artifact, first.envelope.generation.capsule.digest);
 
       await step("build skeleton2 without repackaging host", () => build("skeleton2"));
       const second = await readProduct(join(repository, ".artifacts/seed"));
@@ -209,7 +210,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
       await mkdir(broken, { recursive: true });
       await writeFile(
         join(broken, "index.mjs"),
-        'export function create(){return {handlers:{},initialize:async()=>{throw new Error("injected capsule failure")},stop:async()=>{}}}',
+        'export function create(){return {handlers:{},ready:async()=>{},initialize:async()=>{throw new Error("injected capsule failure")},stop:async()=>{}}}',
       );
       const failed = await compose(second.manifest, {
         carrier: 1,
@@ -304,6 +305,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
               const peer = await inspector.target<{
                 status: { input: unknown; output: Receipt };
                 echo: { input: unknown; output: { input: unknown } };
+                adapter: { input: { method: string; value: unknown }; output: unknown };
               }>("host", expected, host.incarnation);
               const status = await peer.call("status", null);
               assert.equal(status.generation, expected);
@@ -315,16 +317,27 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
               type CapsuleProbe = {
                 lifecycle: {
                   input: null;
-                  output: { build: string; launches: number; incarnation: string; data: string; runtime: string };
+                  output: {
+                    build: string;
+                    launches: number;
+                    owner: string;
+                    service: string;
+                    data: string;
+                    runtime: string;
+                  };
                 };
               };
-              const capsule = await inspector.target<CapsuleProbe>(
-                "capsule",
-                status.product.identity.generation,
-                status.product.incarnation,
-              );
+              const capsule = {
+                call: (_method: string, value: unknown) =>
+                  peer.call("adapter", { method: "lifecycle", value }) as Promise<CapsuleProbe["lifecycle"]["output"]>,
+              };
               const product = await capsule.call("lifecycle", null);
-              assert.equal(product.incarnation, status.product.incarnation);
+              assert.equal(product.service, "electron");
+              assert.ok(status.directory.instances.every((x) => x.service !== "capsule"));
+              assert.equal(status.adapter.internal, "od");
+              assert.equal(status.adapter.external, "od-stable");
+              assert.ok(status.adapter.ipcCalls > 0 && status.adapter.protocolCalls > 0);
+              assert.ok(status.adapter.loading);
               assert.equal((await stat(join(product.runtime, "active"))).isFile(), true);
               assert.equal(status.automation.shown, false);
               assert.equal(status.automation.focused, false);
@@ -361,7 +374,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
               await factory.release(lease);
               assert.equal((await readDirectory(data)).manager.phase, "closed");
               await assert.rejects(stat(product.runtime), /ENOENT/);
-              assert.equal(await readFile(join(product.data, "stopped"), "utf8"), product.incarnation);
+              assert.equal(await readFile(join(product.data, "stopped"), "utf8"), product.owner);
               lease = await start();
               const reopened = await Inspector.open(data, scope);
               assert.notEqual(reopened.manager, inspector.manager);
@@ -369,18 +382,13 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_E2E === "1")(
               await assert.rejects(peer.probe());
               const current = (await reopened.list()).find((i) => i.service === "host");
               assert.ok(current);
-              const nextHost = await reopened.target<{ status: { input: null; output: Receipt } }>("host", expected);
-              const nextStatus = await nextHost.call("status", null);
-              assert.ok(nextStatus.product);
-              const nextCapsule = await reopened.target<CapsuleProbe>(
-                "capsule",
-                nextStatus.product.identity.generation,
-                nextStatus.product.incarnation,
-              );
-              const coldProduct = await nextCapsule.call("lifecycle", null);
+              const nextHost = await reopened.target<{
+                adapter: { input: { method: string; value: unknown }; output: CapsuleProbe["lifecycle"]["output"] };
+              }>("host", expected);
+              const coldProduct = await nextHost.call("adapter", { method: "lifecycle", value: null });
               assert.equal(coldProduct.launches, product.launches + 1);
               assert.equal(coldProduct.data, product.data);
-              assert.notEqual(coldProduct.incarnation, product.incarnation);
+              assert.notEqual(coldProduct.owner, product.owner);
               await assert.rejects(capsule.call("lifecycle", null));
               await execute(
                 "pnpm",
