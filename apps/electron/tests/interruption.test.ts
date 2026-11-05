@@ -309,8 +309,18 @@ it.runIf(process.platform === "darwin" && (process.env.PESUITE_INTERRUPTION_E2E 
             assert.ok(state.references.every((r) => r.kind !== "prepared"));
             if (point === "committed")
               assert.ok(state.references.some((r) => r.kind === "recovery" && r.name === initial.envelope.digest));
+            for (const kind of ["capsule", "web", "daemon"] as const) {
+              const unitKey = resourceKey({ type: "directory", artifact: selectedProduct.envelope.generation[kind] });
+              const uses = state.entries[unitKey]!.uses;
+              assert.equal(uses.length, 1);
+              const subject = restored.directory.instances.find(
+                (i) => i.service === (kind === "daemon" ? "daemon" : "electron"),
+              )!;
+              assert.equal(uses[0]!.owner.incarnation, subject.incarnation);
+              if (kind === "web") assert.equal(uses[0]!.owner.epoch, `web:${restored.units.web.nonce}`);
+            }
             const removed = (await restoredHost.call("content", "collect")) as string[];
-            assert.equal(removed.length, point === "committed" ? 0 : 1);
+            assert.equal(removed.length, point === "committed" ? 0 : 4);
             resourceEvidence = { actual, state, removed };
           }
           await restoredHost.stop();
