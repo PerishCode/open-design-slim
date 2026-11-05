@@ -13,10 +13,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.4",
-    "@perishcode/cli": "0.17.2",
+    "@perishcode/cli": "0.17.3",
     "@perishcode/pack": "0.3.2",
     "@perishcode/release": "0.7.0",
-    "@perishcode/runtime": "0.12.0",
+    "@perishcode/runtime": "0.12.1",
     "@perishcode/sidecar": "2.1.0",
     "@types/node": "24.12.2",
     "electron": "41.3.0",
