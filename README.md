@@ -111,3 +111,5 @@ Capsule handoff uses PESUITE_CAPSULE_ACTIVATE=1 alongside feed configuration. St
 Local object-store acceptance uses the pinned docker-compose.yml Silo. The distribution probe verifies signed metadata, a real S3-delivered content update, native minimum-shell blocking and compatible-shell admission; see AGENTS.md for the explicit commands. The separate installation probe below qualifies physical replacement.
 
 Physical shell replacement is tracked by suite #66 / #15. The opt-in installation probe uses the published coordinator against actual Silo: old namespaces exit, the coordinator survives independently, the new app replaces the original path, and completion requires new-host readiness with retained data. See AGENTS.md for the local macOS matrix and explicit interruption/recovery commands.
+
+The typed blob probe consumes the shared Library (#68 / #16): real Electron file/directory reads, explicit reference/occupancy protection, retention, GC and three interruption/recovery points. Run PESUITE_BLOB_E2E=1 as described in AGENTS.md. This covers Library-owned resources; whole-product generation-store GC remains separate.

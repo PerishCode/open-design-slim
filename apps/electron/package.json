@@ -14,22 +14,23 @@
     "vitest": "4.1.6",
     "electron": "41.3.0",
     "esbuild": "0.28.0",
-    "@perishcode/runtime": "0.11.0",
-    "@perishcode/pack": "0.3.1",
-    "@perishcode/release": "0.6.1",
-    "@perishcode/cli": "0.17.1",
+    "@perishcode/runtime": "0.12.0",
+    "@perishcode/pack": "0.3.2",
+    "@perishcode/release": "0.7.0",
+    "@perishcode/cli": "0.17.2",
     "@perishcode/sidecar": "2.1.0",
     "@perishcode/automation": "0.1.0",
     "@perishcode/inspect": "0.3.1",
     "@perishcode/serve": "0.4.1",
     "@perishcode/protocol": "0.4.0",
-    "@perishcode/publish": "0.4.1",
-    "@perishcode/update": "0.6.1",
-    "@perishcode/distribution": "0.1.1",
+    "@perishcode/publish": "0.4.2",
+    "@perishcode/update": "0.6.2",
+    "@perishcode/distribution": "0.1.2",
     "@aws-sdk/client-s3": "3.1161.0",
-    "@perishcode/installer": "0.1.0"
+    "@perishcode/installer": "0.1.1",
+    "@perishcode/blob": "0.2.0"
   },
   "dependencies": {
-    "@perishcode/electron": "0.11.0"
+    "@perishcode/electron": "0.12.0"
   }
 }
