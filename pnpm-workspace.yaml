@@ -2,6 +2,17 @@ packages:
   - apps/*
   - packages/*
 minimumReleaseAgeExclude:
+  - "@perishcode/sidecar@2.2.0"
+  - "@perishcode/inspect@0.3.2"
+  - "@perishcode/serve@0.4.2"
+  - "@perishcode/blob@0.4.0"
+  - "@perishcode/publish@0.4.5"
+  - "@perishcode/update@0.7.0"
+  - "@perishcode/runtime@0.14.0"
+  - "@perishcode/distribution@0.1.5"
+  - "@perishcode/installer@0.1.4"
+  - "@perishcode/electron@0.14.0"
+  - "@perishcode/cli@0.19.0"
   - "@perishcode/blob@0.3.0"
   - "@perishcode/publish@0.4.4"
   - "@perishcode/update@0.6.4"

@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { promisify } from "node:util";
 import { waitGone } from "@perishcode/automation";
+import { resourceKey, type State } from "@perishcode/blob";
 import type { HostReceipt } from "@perishcode/electron";
 import { Inspector } from "@perishcode/inspect";
 import { namespace } from "@perishcode/protocol";
@@ -115,6 +116,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
         timeout: 20000,
         env: {
           PESUITE_DATA: data,
+          PESUITE_CONTENT_RETENTION: "0",
           PESUITE_RECOVER: recover ? "1" : "0",
           PESUITE_LEAF_ACTIVATE: "1",
           PESUITE_PROBE: "0",
@@ -132,6 +134,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
       const inspector = await Inspector.open(data, scope),
         updates = await inspector.target<Methods>("updates", initial.envelope.digest);
       const host = await inspector.target<{
+        content: { input: "status" | "collect"; output: State | string[] };
         status: { input: unknown; output: HostReceipt };
         read: { input: unknown; output: Record<string, unknown> };
         write: { input: Record<string, unknown>; output: Record<string, unknown> };
@@ -156,6 +159,21 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
       };
       await wait((s) => s.phase === "idle" && s.revision === 1);
       const snapshots: HostReceipt[] = [receipt];
+      const resourceSnapshots: { status: HostReceipt; state: State }[] = [];
+      const resources = async (status: HostReceipt, value: Awaited<ReturnType<typeof readProduct>>) => {
+        const state = (await host.call("content", "status")) as State;
+        for (const kind of ["capsule", "web", "daemon"] as const) {
+          const entry = state.entries[resourceKey({ type: "directory", artifact: value.envelope.generation[kind] })]!;
+          assert.equal(entry.uses.length, 1);
+          const subject = status.directory.instances.find(
+            (i) => i.service === (kind === "daemon" ? "daemon" : "electron"),
+          )!;
+          assert.equal(entry.uses[0]!.owner.incarnation, subject.incarnation);
+          if (kind === "web") assert.equal(entry.uses[0]!.owner.epoch, `web:${status.units.web.nonce}`);
+        }
+        resourceSnapshots.push({ status, state });
+      };
+      await resources(receipt, initial);
       await host.call("write", { ...(await host.call("read", null)), preserved: "factory-data" });
       let revision = 1;
       let web = join(root, "web-baseline"),
@@ -204,6 +222,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
         assert.equal(status.automation.focused, false);
         assert.equal((await inspector.factory.binding()).state.current, value.envelope.digest);
         assert.equal((await host.call("read", null)).preserved, "factory-data");
+        await resources(status, value);
         snapshots.push(status);
         await writeFile(join(root, "snapshots.json"), JSON.stringify(snapshots, null, 2));
         return status;
@@ -236,14 +255,21 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
       assert.equal(c.counts.document, b.counts.document + 1);
       assert.ok(c.renderer.includes("web-0.3.0"));
       assert.ok(String(c.daemon.witness).includes("daemon-0.3.0"));
+      const obsoleteUnits = [initial.envelope.generation.web, initial.envelope.generation.daemon].map((artifact) =>
+        resourceKey({ type: "directory", artifact }),
+      );
+      const collected = (await host.call("content", "collect")) as string[];
+      assert.deepEqual(collected.sort(), obsoleteUnits.sort());
+      for (const key of obsoleteUnits)
+        await assert.rejects(stat(resourceSnapshots[0]!.state.entries[key]!.uses[0]!.path), /ENOENT/);
       const committed = await inspector.factory.binding();
       web = await buildUnit("web", "0.4.0", "pesuite-probe/3");
-      await publish();
+      const incompatible = await publish();
       await wait((s) => s.phase === "failed" && (s.error?.includes("incompatible") ?? false));
       assert.deepEqual(await inspector.factory.binding(), committed);
       assert.deepEqual((await host.call("status", null)).counts, c.counts);
       web = await buildUnit("web", "0.5.0", "pesuite-probe/2", true);
-      await publish();
+      const broken = await publish();
       await wait((s) => s.phase === "failed" && (s.error?.includes("baseline restored=true") ?? false));
       const failed = await host.call("status", null);
       snapshots.push(failed);
@@ -265,6 +291,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
       lease = await start(true, coordinated.envelope.digest);
       const restoredInspector = await Inspector.open(data, scope);
       const restoredHost = await restoredInspector.target<{
+        content: { input: "status" | "collect"; output: State | string[] };
         status: { input: unknown; output: HostReceipt };
         read: { input: unknown; output: Record<string, unknown> };
       }>("host", coordinated.envelope.digest);
@@ -275,6 +302,12 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
       assert.equal(restored.units.daemon.version, "0.3.0");
       assert.equal((await restoredHost.call("read", null)).preserved, "factory-data");
       assert.ok(!(await restoredInspector.factory.binding()).state.attempt);
+      const restoredResources = (await restoredHost.call("content", "status")) as State;
+      const collectedCold = (await restoredHost.call("content", "collect")) as string[];
+      const discarded = [incompatible.envelope.generation.web, broken.envelope.generation.web].map((artifact) =>
+        resourceKey({ type: "directory", artifact }),
+      );
+      assert.deepEqual(collectedCold.sort(), discarded.sort());
       await restoredHost.stop();
       await waitGone(lease.pid);
       await waitGone(Number(restored.daemon.pid));
@@ -287,6 +320,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
             physical,
             before,
             snapshots,
+            resources: { resourceSnapshots, collected, restoredResources, collectedCold },
             observed,
             scope:
               "unsigned macOS; leaf activation and explicit normal recovery; no commit-crash/adoption/fullscreen claim",

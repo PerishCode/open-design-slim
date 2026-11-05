@@ -79,7 +79,7 @@ it("uses the published factory as the shared truth for resources, generations an
       });
       const installed = createRequire(import.meta.url).resolve("@perishcode/sidecar");
       const version = JSON.parse(await readFile(join(dirname(dirname(installed)), "package.json"), "utf8")).version;
-      assert.equal(version, "2.1.0");
+      assert.equal(version, "2.2.0");
       await mkdir("../../.artifacts/control", { recursive: true });
       await writeFile(
         "../../.artifacts/control/factory.json",

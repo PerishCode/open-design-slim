@@ -33,6 +33,9 @@ export function resourceProbe(session: Session) {
         },
       });
     },
+    quiesce: async () => {
+      await library?.close();
+    },
     call: async (input: ResourceRequest): Promise<unknown> => {
       if (!library || !context) throw Error("blob probe is disabled");
       switch (input.op) {

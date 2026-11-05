@@ -214,6 +214,18 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
         assert.equal(entry.uses.length, 1);
         assert.equal(entry.uses[0]!.owner.service, "electron");
         assert.equal(entry.uses[0]!.path, actual.path);
+        for (const kind of ["capsule", "web", "daemon"] as const) {
+          const key = resourceKey({ type: "directory", artifact: value.envelope.generation[kind] });
+          const uses = state.entries[key]!.uses;
+          assert.equal(uses.length, 1);
+          const subject = status.directory.instances.find(
+            (i) => i.service === (kind === "daemon" ? "daemon" : "electron"),
+          )!;
+          assert.equal(uses[0]!.owner.service, subject.service);
+          assert.equal(uses[0]!.owner.incarnation, subject.incarnation);
+          assert.equal(uses[0]!.owner.generation, subject.generation);
+          if (kind === "web") assert.equal(uses[0]!.owner.epoch, `web:${status.units.web.nonce}`);
+        }
         resourceSnapshots.push({ state, actual });
         snapshots.push(status);
         return status;
@@ -246,7 +258,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
       assert.equal(second.units.web.version, "0.2.0");
       assert.equal(second.units.daemon.version, "0.2.0");
       const removed = (await host.call("content", "collect")) as string[];
-      assert.equal(removed.length, 1);
+      assert.equal(removed.length, 2);
       await assert.rejects(readFile(String(originalResource.path)), /ENOENT/);
       const protectedState = (await host.call("content", "status")) as State;
       assert.deepEqual(protectedState.references.map((r) => r.kind).sort(), ["current", "recovery"]);
@@ -263,7 +275,12 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
       assert.equal((await resource()).value, "blob:capsule3");
       const failureResources = (await host.call("content", "status")) as State;
       assert.ok(failureResources.references.some((r) => r.kind === "prepared" && r.name === broken.envelope.digest));
-      assert.deepEqual(await host.call("content", "collect"), []);
+      const obsolete = (await host.call("content", "collect")) as string[];
+      const invalidKeys = [
+        resourceKey({ type: "directory", artifact: incompatible.envelope.generation.capsule }),
+        resourceKey({ type: "file", artifact: incompatible.envelope.generation.blobs[0]! }),
+      ];
+      assert.deepEqual(obsolete.sort(), invalidKeys.sort());
       await host.stop();
       await waitGone(lease.pid, 5000);
       await factory.release(lease);
@@ -283,7 +300,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
       assert.equal((await fresh.call("adapter", { method: "resource", value: null })).value, "blob:capsule3");
       const coldResources = (await fresh.call("content", "status")) as State;
       assert.ok(coldResources.references.every((r) => r.kind !== "prepared"));
-      assert.equal(((await fresh.call("content", "collect")) as string[]).length, 1);
+      assert.equal(((await fresh.call("content", "collect")) as string[]).length, 2);
       await assert.rejects(host.probe());
       await fresh.stop();
       await waitGone(lease.pid, 5000);

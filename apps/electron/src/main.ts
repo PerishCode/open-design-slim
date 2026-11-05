@@ -94,6 +94,7 @@ void startElectron({
             },
             lifecycle: {
               initialize: resources.initialize,
+              quiesce: resources.quiesce,
               stop: async () => {
                 setImmediate(quit);
               },
