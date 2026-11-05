@@ -2,6 +2,14 @@ packages:
   - apps/*
   - packages/*
 minimumReleaseAgeExclude:
+  - "@perishcode/blob@0.2.1"
+  - "@perishcode/publish@0.4.3"
+  - "@perishcode/update@0.6.3"
+  - "@perishcode/runtime@0.12.1"
+  - "@perishcode/distribution@0.1.3"
+  - "@perishcode/cli@0.17.3"
+  - "@perishcode/installer@0.1.2"
+  - "@perishcode/electron@0.12.1"
   - "@perishcode/release@0.7.0"
   - "@perishcode/blob@0.2.0"
   - "@perishcode/publish@0.4.2"
