@@ -14,15 +14,16 @@ import { Authority, writeFeed } from "@perishcode/publish";
 import { compose } from "@perishcode/release";
 import { readProduct } from "@perishcode/runtime";
 import { Sources } from "@perishcode/serve";
-import { serve } from "@perishcode/sidecar";
+import { inspectRecovery, observeProcesses, recover, serve } from "@perishcode/sidecar";
 import type { Methods, Status } from "@perishcode/update";
 import { it } from "vitest";
 
-it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
+const interruptedGC = process.env.PESUITE_GC_INTERRUPTION_E2E === "1";
+it.runIf(process.platform === "darwin" && (process.env.PESUITE_LEAF_E2E === "1" || interruptedGC))(
   "activates compatible leaf units with minimal impact in one installed host",
   async () => {
     const repository = resolve("../.."),
-      root = join(repository, `.artifacts/leaf/${Date.now()}`);
+      root = join(repository, `.artifacts/${interruptedGC ? "gc" : "leaf"}/${Date.now()}`);
     await mkdir(root, { recursive: true });
     const execute = (args: string[]) =>
       promisify(execFile)("pnpm", ["exec", "pesuite", ...args], { cwd: repository, timeout: 90000, encoding: "utf8" });
@@ -107,7 +108,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
     const factory = controller.factory({ ...scope, namespace: namespace("validation") });
     let lease: Awaited<ReturnType<typeof factory.start>> | undefined;
     const observed: Status[] = [];
-    const start = (recover = false, target = initial.envelope.digest) =>
+    const start = (recover = false, target = initial.envelope.digest, pause = interruptedGC) =>
       factory.start({
         command: join(app, "Contents/MacOS", initial.manifest.identity.scheme),
         service: "host",
@@ -117,6 +118,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
         env: {
           PESUITE_DATA: data,
           PESUITE_CONTENT_RETENTION: "0",
+          PESUITE_CONTENT_GC_PAUSE: pause ? "pruned" : "none",
           PESUITE_RECOVER: recover ? "1" : "0",
           PESUITE_LEAF_ACTIVATE: "1",
           PESUITE_PROBE: "0",
@@ -258,6 +260,104 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_LEAF_E2E === "1")(
       const obsoleteUnits = [initial.envelope.generation.web, initial.envelope.generation.daemon].map((artifact) =>
         resourceKey({ type: "directory", artifact }),
       );
+      if (interruptedGC) {
+        const grants = (await inspector.factory.resources()).grants;
+        const ledger = join(grants.find((g) => g.kind === "data" && g.name === "content")!.value, "library.json");
+        const committed = await inspector.factory.binding();
+        const pending = host.call("content", "collect").then(
+          () => "completed",
+          () => "interrupted",
+        );
+        let checkpoint:
+          | { phase: string; key: (typeof obsoleteUnits)[number]; removed: string; pid: number }
+          | undefined;
+        const end = Date.now() + 10000;
+        while (Date.now() < end) {
+          try {
+            checkpoint = JSON.parse(await readFile(join(root, "host.json.gc.json"), "utf8"));
+            break;
+          } catch (e) {
+            if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+          }
+          await new Promise((done) => setTimeout(done, 25));
+        }
+        assert.equal(checkpoint?.phase, "pruned");
+        assert.equal(checkpoint!.pid, lease.pid);
+        assert.ok(obsoleteUnits.includes(checkpoint!.key as (typeof obsoleteUnits)[number]));
+        const view = resourceSnapshots[0]!.state.entries[checkpoint!.key]!.uses[0]!.path;
+        await assert.rejects(stat(join(view, checkpoint!.removed)), /ENOENT/);
+        const remaining = await readdir(view);
+        assert.ok(remaining.length > 0, "SIGKILL must interrupt a partially deleted executable directory");
+        const retained = await readFile(ledger);
+        assert.equal(JSON.parse(retained.toString()).entries[checkpoint!.key].phase, "deleting");
+        process.kill(lease.pid, "SIGKILL");
+        await waitGone(lease.pid);
+        await waitGone(Number(c.daemon.pid));
+        await factory.release(lease);
+        lease = undefined;
+        assert.equal(await pending, "interrupted");
+        const osEnd = Date.now() + 5000;
+        while ((await observeProcesses(data, scope)).length && Date.now() < osEnd)
+          await new Promise((done) => setTimeout(done, 25));
+        assert.deepEqual(await observeProcesses(data, scope), []);
+        await assert.rejects(start(false, coordinated.envelope.digest, false), /interrupted.*recovery/);
+        assert.deepEqual(await readFile(ledger), retained);
+        const plan = await inspectRecovery(data);
+        assert.equal(plan.phase, "ready");
+        await recover(data, { expected: plan.fingerprint });
+        lease = await start(false, coordinated.envelope.digest, false);
+        const freshInspector = await Inspector.open(data, scope);
+        const fresh = await freshInspector.target<{
+          status: { input: null; output: HostReceipt };
+          read: { input: null; output: Record<string, unknown> };
+          content: { input: "status" | "collect"; output: State | string[] };
+        }>("host", coordinated.envelope.digest);
+        const running = await fresh.call("status", null);
+        assert.equal(running.generation, coordinated.envelope.digest);
+        assert.notEqual(running.pid, c.pid);
+        assert.equal(running.units.web.version, "0.3.0");
+        assert.equal(running.units.daemon.version, "0.3.0");
+        assert.equal((await fresh.call("read", null)).preserved, "factory-data");
+        assert.deepEqual((await freshInspector.factory.binding()).state, committed.state);
+        const collected = (await fresh.call("content", "collect")) as string[];
+        const finalState = (await fresh.call("content", "status")) as State;
+        for (const key of obsoleteUnits) {
+          assert.equal(finalState.entries[key], undefined);
+          await assert.rejects(stat(resourceSnapshots[0]!.state.entries[key]!.uses[0]!.path), /ENOENT/);
+        }
+        assert.ok(finalState.references.some((r) => r.kind === "current"));
+        assert.ok(finalState.references.some((r) => r.kind === "recovery"));
+        assert.equal(await fingerprint(app), physical);
+        await assert.rejects(host.call("status", null));
+        await fresh.stop();
+        await waitGone(running.pid);
+        await waitGone(Number(running.daemon.pid));
+        await writeFile(
+          join(root, "receipt.json"),
+          JSON.stringify(
+            {
+              result: "passed",
+              checkpoint,
+              remaining,
+              retained: JSON.parse(retained.toString()),
+              plan,
+              committed,
+              running,
+              collected,
+              finalState,
+              resourceSnapshots,
+              obsoleteUnits,
+              physical,
+              scope:
+                "actual unsigned macOS; SIGKILL during retired executable directory deletion; unchanged-ledger refusal and explicit recovery; current/recovery/data retained",
+            },
+            null,
+            2,
+          ),
+        );
+        process.stdout.write(`${JSON.stringify({ result: "passed", receipt: join(root, "receipt.json") })}\n`);
+        return;
+      }
       const collected = (await host.call("content", "collect")) as string[];
       assert.deepEqual(collected.sort(), obsoleteUnits.sort());
       for (const key of obsoleteUnits)
