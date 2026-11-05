@@ -17,7 +17,7 @@
 - Authorized patterns permit routine expansion within their declared scope. For a new responsibility or pattern, obtain scope authorization, declare bounded patterns in pesuite.yaml, and update regression coverage and the relevant index. Do not widen patterns, excludes or exceptions just to silence findings. The structure may evolve through this process.
 - Generated/dependency/runtime directories have fixed owned boundaries; exclusions do not authorize source or resource trees. Source resources must follow the declared resource lifecycle.
 
-- apps/electron is the stable host, apps/capsule the composition entry, apps/web a static browser probe, apps/daemon a local service probe. packages is reserved for product-owned shared modules.
+- carriers/electron is the stable host, carriers/electron/src/capsule the composition entry, apps/web a static browser probe, apps/daemon a local service probe. packages is reserved for product-owned shared modules.
 - Modules use src and sibling tests/**/*.test.ts, independent tsconfigs, and module-owned tool configs.
 - Brief scale: source <=500 lines; module depth <=5 and width <=8; components width exemption only; styles confined to packages/components/**/*.less. TS7/Vitest/Biome and exact external versions remain required.
 - These summaries aid navigation; guard configuration and findings determine compliance.
@@ -30,24 +30,24 @@
 | .github/workflows/stable.release.yml / channel.release.yml | formal versus experimental quality selection and platform runners             |
 | pesuite.yaml / biome.json / .npmrc                         | guard/runtime/pipeline product layout, formatting and registry routing        |
 | apps/*/esbuild.config.mjs                                  | each module's own build, with no call back to the root                        |
-| apps/electron/src/main.ts                                  | host bootstrap and optional caller-owned status/echo contract                 |
-| apps/capsule/src/index.ts                                  | executed composition entry and injected resource probe                        |
+| carriers/electron/src/main.ts                              | host bootstrap and optional caller-owned status/echo contract                 |
+| carriers/electron/src/capsule/index.ts                     | executed composition entry and injected resource probe                        |
 | apps/web/src/index.ts / index.html                         | browser bridge and placeholder page                                           |
 | apps/daemon/src/main.ts                                    | published minimal daemon service                                              |
-| apps/capsule/tests/channel.test.ts                         | published release contract and explicit product channel identity              |
+| carriers/electron/tests/capsule/channel.test.ts            | published release contract and explicit product channel identity              |
 | apps/daemon/tests/factory.test.ts                          | cross-channel resource isolation and unsupported-format refusal               |
 | apps/daemon/tests/sessions.test.ts                         | lifecycle batches, private nesting and interrupted owner fencing              |
 | apps/daemon/tests/directory.test.ts                        | factory continuity and interrupted read-only inventory                        |
 | apps/daemon/tests/ownership.test.ts                        | registry ownership, normal replacement and real SIGKILL acceptance            |
 | apps/daemon/tests/control.test.ts                          | hosted control and resource lifecycle acceptance                              |
-| apps/electron/tests/resources/factory.test.ts              | published SDK same-root/channel isolation and version continuity              |
-| apps/electron/tests/capsule.test.ts                        | actual automatic Capsule handoff, compatible sets and failed-adapter recovery |
-| apps/electron/tests/interruption.test.ts                   | real installed activation SIGKILL, offline facts and preserved authority      |
-| apps/electron/tests/leaf.test.ts                           | actual minimal-impact activation, compatibility, failure and normal recovery  |
-| apps/electron/tests/discovery.test.ts                      | real installed automatic feed preparation, fault/retry and unchanged binding  |
-| apps/electron/tests/skeleton.test.ts                       | opt-in real unsigned installed lifecycle acceptance                           |
-| apps/electron/tests/resources                              | factory ownership and typed blob lifecycle probes                             |
-| apps/electron/tests/distribution                           | actual Silo metadata/native gates and same-path installation recovery         |
+| carriers/electron/tests/resources/factory.test.ts          | published SDK same-root/channel isolation and version continuity              |
+| carriers/electron/tests/capsule.test.ts                    | actual automatic Capsule handoff, compatible sets and failed-adapter recovery |
+| carriers/electron/tests/interruption.test.ts               | real installed activation SIGKILL, offline facts and preserved authority      |
+| carriers/electron/tests/leaf.test.ts                       | actual minimal-impact activation, compatibility, failure and normal recovery  |
+| carriers/electron/tests/discovery.test.ts                  | real installed automatic feed preparation, fault/retry and unchanged binding  |
+| carriers/electron/tests/skeleton.test.ts                   | opt-in real unsigned installed lifecycle acceptance                           |
+| carriers/electron/tests/resources                          | factory ownership and typed blob lifecycle probes                             |
+| carriers/electron/tests/distribution                       | actual Silo metadata/native gates and same-path installation recovery         |
 | .artifacts                                                 | generated seed, package, installed copies and execution receipts              |
 
 ## Iteration workflows
@@ -60,7 +60,7 @@ Build includes both source and test type checking. Installation does not trigger
 
 ### Local debugging
 
-Build modules, prepare the seed using the content command below, then run `pnpm exec electron apps/electron/dist/main.mjs`.
+Build modules, prepare the seed using the content command below, then run `pnpm exec electron carriers/electron/dist/main.mjs`.
 Automated validation uses the shared @perishcode/automation launcher with hidden, non-focusable windows and macOS accessory policy. PESUITE_PROBE=1 implies automation and quits at ready; PESUITE_AUTOMATION=1 keeps the same background behavior without auto-quit for crash injection. Receipts assert no window show/focus events.
 The page must reach ready through actual Capsule/Web/Daemon execution. PESUITE_DATA selects isolated data; PESUITE_PROBE=1 and PESUITE_RECEIPT select the existing host probe mode. Set PESUITE_INSPECT=1 to register the product-owned host status/echo methods after four-unit readiness; use the same published inspect entry for development and installation.
 
@@ -198,3 +198,10 @@ suite [#75](https://github.com/PerishCode/electron-suite/issues/75) owns this ph
 `PESUITE_INSTALLATION_E2E=1` covers vacated, confirming, displaced, installed and normal physical installation cases through the declared Silo. The confirming checkpoint precedes durable confirmation; a killed coordinator cannot authorize live-process adoption. Retire the failed launch and require explicit installation-root recovery before resuming.
 Envelope receipts and installation job/record/policy/archive/content/backup/executor materials are retained long term in this phase, including after confirmation. Runtime CAS/view GC does not remove them. Never delete authority/ledger files or unknown material to free space. Record retained disk cost in the next continuous product journey; maintenance policy is a later bounded decision if that measurement requires it.
 Inherited acceptance remains attached to its original source and package versions. Current closeout receipts qualify only scenarios actually rerun.
+
+### Carrier skeleton boundary
+
+carriers/electron owns the stable host and src/capsule code. One module emits separate host and Capsule artifacts; never inline Capsule into the stable main bundle. Capsule has no sidecar process identity. apps/web and apps/daemon remain shared application units.
+standalone/docker/codexplugin are private workspace placeholders with empty src/tests trees. They have no build/runtime/packaging implementation and are not qualified or published carriers. Their no-test Vitest result is only discovery of an empty scaffold.
+All carriers will share one product version/channel and one coordinated release. The current workflows still exercise the existing Electron delivery only. Carrier selection, aggregate release receipts, pack/release adapters, compatibility naming and standalone runtime closure remain under discussion; do not implement them or dispatch publication for placeholder carriers.
+The existing pipeline supports explicit per-unit outputs under dist, so host and Capsule can share a module without sharing an artifact. This is build-location plumbing, not multi-carrier release support. Historical receipts keep their original paths and qualification scope. The continuous journey in #77 must wait for the remaining carrier boundary discussion.

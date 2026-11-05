@@ -1,3 +1,5 @@
+# Product version/channel is shared by all carriers.
+# Only Electron is implemented; other carrier jobs await the agreed release model.
 name: experimental channel release
 on:
   workflow_dispatch:

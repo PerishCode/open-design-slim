@@ -2,6 +2,10 @@ schemaVersion: 1
 guard:
   directories:
     repository:
+      - carriers
+      - carriers/*
+      - carriers/electron/src/capsule
+      - carriers/electron/tests/capsule
       - apps
       - packages
       - apps/*
@@ -11,8 +15,8 @@ guard:
       - .state
       - .github
       - .github/workflows
-      - apps/electron/tests/distribution
-      - apps/electron/tests/resources
+      - carriers/electron/tests/distribution
+      - carriers/electron/tests/resources
   components:
     - packages/components
 runtime:
@@ -24,12 +28,14 @@ runtime:
   scheme: od
   version: 0.1.0
 pipeline:
-  carrier: apps/electron
-  capsule: apps/capsule
+  carrier: carriers/electron
+  capsule: carriers/electron
   daemon: apps/daemon
   web: apps/web
+  outputs:
+    capsule: dist/capsule
   blobs:
-    probe: apps/capsule/dist/probe.bin
+    probe: carriers/electron/dist/capsule/probe.bin
 
 serve:
   data: .state/serve
