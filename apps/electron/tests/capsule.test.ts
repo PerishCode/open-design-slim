@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { promisify } from "node:util";
 import { waitGone } from "@perishcode/automation";
+import { resourceKey, type State } from "@perishcode/blob";
 import type { HostReceipt } from "@perishcode/electron";
 import { Inspector } from "@perishcode/inspect";
 import { namespace } from "@perishcode/protocol";
@@ -126,6 +127,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
           PESUITE_AUTOMATION: "1",
           PESUITE_PROBE: "0",
           PESUITE_CAPSULE_ACTIVATE: "1",
+          PESUITE_CONTENT_RETENTION: "0",
           PESUITE_LEAF_ACTIVATE: "1",
           PESUITE_RECOVER: recover ? "1" : "0",
           PESUITE_FEED: sources.endpoints[0]!.url,
@@ -141,6 +143,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
         updates = await inspector.target<Methods>("bootstrapupdates", initial.envelope.digest),
         oldLeaf = await inspector.target<Methods>("updates", initial.envelope.digest);
       const host = await inspector.target<{
+        content: { input: "status" | "collect"; output: State | string[] };
         status: { input: null; output: HostReceipt };
         adapter: { input: { method: string; value: unknown }; output: Record<string, unknown> };
         read: { input: null; output: Record<string, unknown> };
@@ -161,6 +164,11 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
       };
       await wait((s) => s.phase === "idle" && s.revision === 1);
       const baseline = await host.call("status", null);
+      const resource = () => host.call("adapter", { method: "resource", value: null });
+      const originalResource = await resource();
+      assert.equal(originalResource.value, "blob:baseline");
+      assert.equal(originalResource.pid, baseline.pid);
+      const resourceSnapshots: unknown[] = [];
       snapshots.push(baseline);
       await host.call("write", { ...(await host.call("read", null)), retained: "capsule-data" });
       let web = join(root, "web-baseline"),
@@ -176,6 +184,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
             join(capsule, "index.mjs"),
             "export function create(){return {handlers:{},initialize:async()=>{throw Error('injected capsule initialize failure')},ready:async()=>{},stop:async()=>{}}}",
           );
+        await writeFile(blob, `blob:${marker}`);
         return compose(
           { ...initial.manifest, identity: { ...initial.manifest.identity, version } },
           { carrier, capsule, web, daemon, blobs: [{ slot: "probe", path: blob }] },
@@ -187,7 +196,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
         assert.equal(status.pid, baseline.pid);
         assert.equal(status.product?.version, version);
         assert.equal(status.product?.artifact, value.envelope.generation.capsule.digest);
-        assert.equal(status.capsule, `capsule:${marker}:blob:baseline`);
+        assert.equal(status.capsule, `capsule:${marker}:blob:${marker}`);
         assert.equal(status.adapter.title, `Open Design Slim — ${marker}`);
         assert.equal(status.adapter.loading, `Loading Open Design Slim ${marker}`);
         assert.equal(status.phase, "ready");
@@ -196,6 +205,16 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
         assert.ok(status.directory.instances.every((i) => i.service !== "capsule"));
         assert.equal(status.automation.shown, false);
         assert.equal(status.automation.focused, false);
+        const actual = await resource();
+        assert.equal(actual.value, `blob:${marker}`);
+        assert.equal(actual.pid, baseline.pid);
+        const state = (await host.call("content", "status")) as State;
+        const spec = { type: "file" as const, artifact: value.envelope.generation.blobs[0]! };
+        const entry = state.entries[resourceKey(spec)]!;
+        assert.equal(entry.uses.length, 1);
+        assert.equal(entry.uses[0]!.owner.service, "electron");
+        assert.equal(entry.uses[0]!.path, actual.path);
+        resourceSnapshots.push({ state, actual });
         snapshots.push(status);
         return status;
       };
@@ -207,6 +226,8 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
       assert.equal(first.counts.document, baseline.counts.document + 1);
       assert.notEqual(first.units.web.nonce, baseline.units.web.nonce);
       await assert.rejects(oldLeaf.call("status", null));
+      assert.deepEqual(await host.call("content", "collect"), []);
+      assert.equal(await readFile(String(originalResource.path), "utf8"), "blob:baseline");
       for (const kind of ["web", "daemon"] as const) {
         await run(["--filter", `@perishcode/slim-${kind}`, "build"], {
           PESUITE_BUILD: `${kind}-0.2.0`,
@@ -224,6 +245,11 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
       assert.notEqual(second.daemon.pid, first.daemon.pid);
       assert.equal(second.units.web.version, "0.2.0");
       assert.equal(second.units.daemon.version, "0.2.0");
+      const removed = (await host.call("content", "collect")) as string[];
+      assert.equal(removed.length, 1);
+      await assert.rejects(readFile(String(originalResource.path)), /ENOENT/);
+      const protectedState = (await host.call("content", "status")) as State;
+      assert.deepEqual(protectedState.references.map((r) => r.kind).sort(), ["current", "recovery"]);
       const incompatible = await candidate("0.4.0", "abi", 999);
       await publish(incompatible);
       await wait((s) => s.phase === "failed" && !!s.error?.includes("incompatible"));
@@ -234,6 +260,10 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
       const failed = await host.call("status", null);
       assert.equal(failed.generation, combined.envelope.digest);
       assert.equal(failed.product?.version, "0.3.0");
+      assert.equal((await resource()).value, "blob:capsule3");
+      const failureResources = (await host.call("content", "status")) as State;
+      assert.ok(failureResources.references.some((r) => r.kind === "prepared" && r.name === broken.envelope.digest));
+      assert.deepEqual(await host.call("content", "collect"), []);
       await host.stop();
       await waitGone(lease.pid, 5000);
       await factory.release(lease);
@@ -244,10 +274,16 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
         fresh = await reopened.target<{
           status: { input: null; output: HostReceipt };
           read: { input: null; output: Record<string, unknown> };
+          content: { input: "status" | "collect"; output: State | string[] };
+          adapter: { input: { method: string; value: unknown }; output: Record<string, unknown> };
         }>("host", combined.envelope.digest);
       const cold = await fresh.call("status", null);
       assert.equal(cold.product?.version, "0.3.0");
       assert.equal((await fresh.call("read", null)).retained, "capsule-data");
+      assert.equal((await fresh.call("adapter", { method: "resource", value: null })).value, "blob:capsule3");
+      const coldResources = (await fresh.call("content", "status")) as State;
+      assert.ok(coldResources.references.every((r) => r.kind !== "prepared"));
+      assert.equal(((await fresh.call("content", "collect")) as string[]).length, 1);
       await assert.rejects(host.probe());
       await fresh.stop();
       await waitGone(lease.pid, 5000);
@@ -263,6 +299,14 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_CAPSULE_E2E === "1
             physical,
             baseline,
             snapshots,
+            resources: {
+              originalResource,
+              resourceSnapshots,
+              removed,
+              protectedState,
+              failureResources,
+              coldResources,
+            },
             failed,
             cold,
             observed,
