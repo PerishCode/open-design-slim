@@ -26,6 +26,16 @@ void startElectron({
   probe: process.env.PESUITE_PROBE === "1",
   automation: process.env.PESUITE_AUTOMATION === "1",
   receipt: process.env.PESUITE_RECEIPT,
+  onContentCheckpoint:
+    process.env.PESUITE_CONTENT_GC_PAUSE && process.env.PESUITE_RECEIPT
+      ? async (event) => {
+          if (event.phase !== process.env.PESUITE_CONTENT_GC_PAUSE) return;
+          await writeFile(`${process.env.PESUITE_RECEIPT}.gc.json`, JSON.stringify({ ...event, pid: process.pid }), {
+            flush: true,
+          });
+          await new Promise<void>(() => {});
+        }
+      : undefined,
   onActivation:
     process.env.PESUITE_ACTIVATION_PAUSE && process.env.PESUITE_RECEIPT
       ? async (checkpoint) => {
@@ -44,9 +54,9 @@ void startElectron({
   installation:
     process.env.PESUITE_INSTALLATION === "1"
       ? {
-          checkpoint: (["ready", "vacated", "displaced", "installed", "launched", "confirmed"] as const).find(
-            (value) => value === process.env.PESUITE_INSTALLATION_PAUSE,
-          ),
+          checkpoint: (
+            ["ready", "vacated", "displaced", "installed", "launched", "confirming", "confirmed"] as const
+          ).find((value) => value === process.env.PESUITE_INSTALLATION_PAUSE),
         }
       : undefined,
   updates: process.env.PESUITE_FEED

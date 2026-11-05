@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { generateKeyPairSync } from "node:crypto";
-import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { promisify } from "node:util";
@@ -16,7 +16,7 @@ import { inspect, pack } from "@perishcode/pack";
 import { digest, namespace } from "@perishcode/protocol";
 import { compose } from "@perishcode/release";
 import { readProduct } from "@perishcode/runtime";
-import { inspectRecovery, managerAlive, recover, serve } from "@perishcode/sidecar";
+import { inspectRecovery, managerAlive, readDirectory, recover, serve } from "@perishcode/sidecar";
 import { it } from "vitest";
 
 it.runIf(process.platform === "darwin" && process.env.PESUITE_INSTALLATION_E2E === "1")(
@@ -174,8 +174,9 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INSTALLATION_E2E =
     let revision = 1;
     const choices = process.env.PESUITE_INSTALLATION_CASE
       ? [process.env.PESUITE_INSTALLATION_CASE]
-      : ["displaced", "installed", "normal"];
-    for (const point of choices) assert.ok(["displaced", "installed", "normal"].includes(point));
+      : ["vacated", "confirming", "displaced", "installed", "normal"];
+    for (const point of choices)
+      assert.ok(["vacated", "confirming", "displaced", "installed", "normal"].includes(point));
     try {
       for (const [index, point] of choices.entries()) {
         const caseRoot = join(root, point);
@@ -266,6 +267,12 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INSTALLATION_E2E =
           await new Promise((done) => setTimeout(done, 100));
         }
         assert.ok(handle, "installation coordinator did not become ready");
+        const installation = await Inspector.open(installRoot, {
+          channel: initial.manifest.channel,
+          namespace: namespace("installation"),
+        });
+        const grants = (await installation.factory.resources()).grants;
+        const home = join(grants.find((g) => g.kind === "data")!.value, "transactions", handle.id);
         await waitGone(one.pid, 25000);
         if (two) await waitGone(two.pid, 25000);
         for (const file of [receipt, ...(two ? [join(caseRoot, "secondary.json")] : [])]) {
@@ -282,22 +289,47 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INSTALLATION_E2E =
         if (point !== "normal") {
           const deadline = Date.now() + 90000;
           while (Date.now() < deadline) {
-            paused = await inspectInstallation({
-              root: installRoot,
-              target,
-              product: first.product,
-              channel: first.channel,
-            });
-            if (paused?.phase === point) break;
+            paused =
+              point === "confirming"
+                ? await (
+                    await (
+                      await Inspector.open(installRoot, {
+                        channel: initial.manifest.channel,
+                        namespace: namespace("installation"),
+                      })
+                    ).target<{ status: { input: null; output: Journal } }>("installer", digest("installation-domain"))
+                  ).call("status", null)
+                : await inspectInstallation({
+                    root: installRoot,
+                    target,
+                    product: first.product,
+                    channel: first.channel,
+                  });
+            if (point === "confirming" && paused?.phase === "launched") {
+              try {
+                if (JSON.parse(await readFile(join(home, "checkpoint.json"), "utf8")).phase === "confirming") break;
+              } catch (e) {
+                if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+              }
+            } else if (paused?.phase === point) break;
             if (paused?.phase === "failed") throw Error(paused.error);
             await new Promise((done) => setTimeout(done, 100));
           }
-          assert.equal(paused?.phase, point);
+          assert.equal(paused?.phase, point === "confirming" ? "launched" : point);
           assert.equal(await managerAlive(handle.manager), true);
+          if (point === "vacated") {
+            assert.equal((await inspect(target)).version, before.version);
+            assert.equal(digest(await readFile(join(target, "Contents/Info.plist"))), beforeInfo);
+          }
+          if (point === "confirming") assert.ok(paused?.next && (await managerAlive(paused.next)));
           if (point === "displaced") await assert.rejects(readFile(join(target, "Contents/Info.plist")), /ENOENT/);
           if (point === "installed") assert.equal((await inspect(target)).version, "0.2.0");
           process.kill(handle.manager.pid, "SIGKILL");
           await waitGone(handle.manager.pid, 5000);
+          if (point === "confirming") {
+            await waitGone(paused!.next!.pid, 20000);
+            assert.equal((await readDirectory(paused!.next!.root)).manager.phase, "closed");
+          }
           await assert.rejects(
             resume({ root: installRoot, target, product: first.product, channel: first.channel }),
             /interrupted|recovery/,
@@ -324,6 +356,7 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INSTALLATION_E2E =
         }
         assert.equal(record?.phase, "confirmed");
         assert.ok(record.next);
+        if (point === "confirming") assert.notEqual(record.next.pid, paused!.next!.pid);
         await waitGone(handle.manager.pid, 10000);
         assert.equal(await managerAlive(record.next), true);
         assert.equal((await inspect(target)).version, "0.2.0");
@@ -391,8 +424,20 @@ it.runIf(process.platform === "darwin" && process.env.PESUITE_INSTALLATION_E2E =
           await waitGone(reopened.pid, 10000);
           await factory.release(reopened);
         }
+        const retainedJob = JSON.parse(await readFile(join(home, "job.json"), "utf8"));
+        const retained = [
+          join(home, "record.json"),
+          join(home, "archive.zip"),
+          join(home, "policy"),
+          join(home, "content"),
+          join(home, "backup", basename(target)),
+          retainedJob.executor,
+          retainedJob.worker,
+        ];
+        for (const path of retained) assert.ok(await stat(path));
         receipts.push({
           point,
+          retained,
           target,
           before,
           after: await inspect(target),
