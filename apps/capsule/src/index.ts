@@ -10,6 +10,11 @@ export function create(): Capsule {
   let launches = 0;
   return {
     handlers: {
+      resource: async (_input, c) => ({
+        pid: process.pid,
+        path: c.blobs.probe,
+        value: await readFile(c.blobs.probe!, "utf8"),
+      }),
       health: (_input, c) => c.daemon.request("health"),
       read: (_input, c) => c.daemon.request("read"),
       write: (input, c) => c.daemon.request("write", input),

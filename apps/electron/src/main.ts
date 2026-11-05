@@ -21,6 +21,8 @@ void startElectron({
   preload: join(here, "preload.cjs"),
   candidate: process.env.PESUITE_CANDIDATE,
   recover: process.env.PESUITE_RECOVER === "1",
+  blobRetentionMs:
+    process.env.PESUITE_CONTENT_RETENTION === undefined ? undefined : Number(process.env.PESUITE_CONTENT_RETENTION),
   probe: process.env.PESUITE_PROBE === "1",
   automation: process.env.PESUITE_AUTOMATION === "1",
   receipt: process.env.PESUITE_RECEIPT,
@@ -62,6 +64,7 @@ void startElectron({
       ? async (session, receipt, quit, snapshot) => {
           const resources = resourceProbe(session);
           await session.expose<{
+            content: { input: "status" | "collect"; output: unknown };
             blobs: { input: ResourceRequest; output: unknown };
             native: { input: null; output: unknown };
             status: { input: unknown; output: unknown };
@@ -71,6 +74,7 @@ void startElectron({
             adapter: { input: { method: string; value: unknown }; output: unknown };
           }>("host", {
             handlers: {
+              content: (action) => (action === "collect" ? session.collectBlobs() : session.blobStatus()),
               blobs: resources.call,
               native: async () => {
                 if (process.env.PESUITE_DISTRIBUTION_PROBE !== "1") throw new Error("native probe is disabled");

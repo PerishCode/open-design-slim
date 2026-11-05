@@ -8,6 +8,7 @@ import { basename, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { waitGone } from "@perishcode/automation";
+import { resourceKey, type State } from "@perishcode/blob";
 import type { HostReceipt } from "@perishcode/electron";
 import { Inspector } from "@perishcode/inspect";
 import { namespace } from "@perishcode/protocol";
@@ -80,6 +81,7 @@ it.runIf(process.platform === "darwin" && (process.env.PESUITE_INTERRUPTION_E2E 
     });
     const blob = join(root, "baseline-probe.bin");
     await writeFile(blob, initial.assets.find((a) => a.artifact.kind === "blob")!.bytes);
+    if (capsuleMode) await writeFile(blob, "blob:interrupted-candidate");
     if (capsuleMode) await run(["--filter", "@perishcode/slim-capsule", "build"], { PESUITE_BUILD: "capsule-0.2.0" });
     const candidate = await compose(
       capsuleMode
@@ -123,6 +125,7 @@ it.runIf(process.platform === "darwin" && (process.env.PESUITE_INTERRUPTION_E2E 
         const env = {
           PESUITE_DATA: data,
           PESUITE_PROBE: "0",
+          PESUITE_CONTENT_RETENTION: "0",
           PESUITE_AUTOMATION: "1",
           PESUITE_INSPECT: "1",
           PESUITE_RECEIPT: receipt,
@@ -155,6 +158,8 @@ it.runIf(process.platform === "darwin" && (process.env.PESUITE_INTERRUPTION_E2E 
           const inspector = await Inspector.open(data, scope);
           const host = await inspector.target<{
             status: { input: unknown; output: HostReceipt };
+            content: { input: "status" | "collect"; output: State | string[] };
+            adapter: { input: { method: string; value: unknown }; output: Record<string, unknown> };
             read: { input: unknown; output: Record<string, unknown> };
             write: { input: Record<string, unknown>; output: unknown };
           }>("host", initial.envelope.digest);
@@ -277,6 +282,8 @@ it.runIf(process.platform === "darwin" && (process.env.PESUITE_INTERRUPTION_E2E 
           const fresh = await Inspector.open(data, scope);
           const restoredHost = await fresh.target<{
             status: { input: unknown; output: HostReceipt };
+            content: { input: "status" | "collect"; output: State | string[] };
+            adapter: { input: { method: string; value: unknown }; output: Record<string, unknown> };
             read: { input: unknown; output: Record<string, unknown> };
           }>("host", selected);
           const restored = await restoredHost.call("status", null);
@@ -288,6 +295,24 @@ it.runIf(process.platform === "darwin" && (process.env.PESUITE_INTERRUPTION_E2E 
           assert.notEqual(restored.directory.manager.incarnation, before.directory.manager.incarnation);
           assert.ok(!(await fresh.factory.binding()).state.attempt);
           await assert.rejects(host.call("status", null));
+          let resourceEvidence: unknown;
+          if (capsuleMode) {
+            const actual = await restoredHost.call("adapter", { method: "resource", value: null });
+            assert.equal(actual.pid, restored.pid);
+            assert.equal(actual.value, point === "committed" ? "blob:interrupted-candidate" : "blob:baseline");
+            const state = (await restoredHost.call("content", "status")) as State;
+            const selectedProduct = point === "committed" ? candidate : initial;
+            const key = resourceKey({ type: "file", artifact: selectedProduct.envelope.generation.blobs[0]! });
+            assert.equal(state.entries[key]!.uses.length, 1);
+            assert.equal(state.entries[key]!.uses[0]!.owner.service, "electron");
+            assert.ok(state.references.some((r) => r.kind === "current" && r.keys.includes(key)));
+            assert.ok(state.references.every((r) => r.kind !== "prepared"));
+            if (point === "committed")
+              assert.ok(state.references.some((r) => r.kind === "recovery" && r.name === initial.envelope.digest));
+            const removed = (await restoredHost.call("content", "collect")) as string[];
+            assert.equal(removed.length, point === "committed" ? 0 : 1);
+            resourceEvidence = { actual, state, removed };
+          }
           await restoredHost.stop();
           await waitGone(lease.pid, 5000);
           await waitGone(Number(restored.daemon.pid), 5000);
@@ -308,6 +333,7 @@ it.runIf(process.platform === "darwin" && (process.env.PESUITE_INTERRUPTION_E2E 
             recoveryPlan,
             recovered,
             restored,
+            resourceEvidence,
             interruptedRecovery,
           });
           await writeFile(
