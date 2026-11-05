@@ -1,7 +1,10 @@
 packages:
+  - carriers/*
   - apps/*
   - packages/*
 minimumReleaseAgeExclude:
+  - "@perishcode/pipeline@0.5.3"
+  - "@perishcode/cli@0.19.2"
   - "@perishcode/blob@0.4.1"
   - "@perishcode/publish@0.4.6"
   - "@perishcode/update@0.7.1"

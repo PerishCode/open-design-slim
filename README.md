@@ -3,12 +3,12 @@
 当前仅交付 electron/capsule/web/daemon 骨架与机制探针，不迁移 OpenDesign 功能。
 长期方向见 [suite #1](https://github.com/PerishCode/electron-suite/issues/1)，消费者推进见 [#4](https://github.com/PerishCode/open-design-slim/issues/4)。
 
-| 运行单元      | 职责                                 |
-| ------------- | ------------------------------------ |
-| apps/electron | 固定宿主，消费已发布的 Electron 适配 |
-| apps/capsule  | 执行产品组合与注入资源探针           |
-| apps/web      | 无样式的静态页面与窄 IPC 通信探针    |
-| apps/daemon   | 消费发布包的最小健康/状态服务        |
+| 运行单元                      | 职责                                 |
+| ----------------------------- | ------------------------------------ |
+| carriers/electron             | 固定宿主，消费已发布的 Electron 适配 |
+| carriers/electron/src/capsule | 执行产品组合与注入资源探针           |
+| apps/web                      | 无样式的静态页面与窄 IPC 通信探针    |
+| apps/daemon                   | 消费发布包的最小健康/状态服务        |
 
 ## 开始迭代
 
@@ -39,7 +39,7 @@ pnpm exec pesuite guard
 
 ## 渠道身份验证
 
-通过 registry 固定消费 release 0.2.0，apps/capsule/tests/channel.test.ts 使用 slim 自己的产品身份验证 stable、beta 与自定义渠道的版本生成、安装身份、metadata 和 emit/read roundtrip。版本与 channel 不一致或发布 local 时拒绝；证据在 .artifacts/channel/receipt.json。
+通过 registry 固定消费 release 0.2.0，carriers/electron/tests/capsule/channel.test.ts 使用 slim 自己的产品身份验证 stable、beta 与自定义渠道的版本生成、安装身份、metadata 和 emit/read roundtrip。版本与 channel 不一致或发布 local 时拒绝；证据在 .artifacts/channel/receipt.json。
 channel 与 namespace 共同确定资源 factory；sidecar 0.6 已提供 factory allocator，runtime/electron 0.2 接入该边界。渠道纠偏与后续验收见 suite #28；现有 probe 仅证明所执行的契约。
 
 ## Factory 资源边界验证
@@ -56,7 +56,7 @@ sidecar 0.6.0 / protocol 0.3.0 的独立 registry probe 使用 Service.factory/C
 
 
 runtime/electron 0.2 的运行收据包含 factory scope 和 sidecar directory 中的实际 daemon 进程身份。
-apps/electron/tests/factory.test.ts 验证同管理根、同 namespace 的 stable/beta 隔离和跨版本数据连续。
+carriers/electron/tests/factory.test.ts 验证同管理根、同 namespace 的 stable/beta 隔离和跨版本数据连续。
 PESUITE_E2E=1 的安装验收保留同一个宿主，验证四类内容更新、冷启动、失败激活和显式 binding 恢复。
 真实 SIGKILL 后 daemon 随父管道关闭，manager 保留 interrupted 事实；再次启动拒绝，且 manager/factory 字节不变。
 该拒绝是新 SDK 的约束，不提供 manager 恢复或旧 namespace 数据迁移；不得删除权威文件绕过。
@@ -115,3 +115,7 @@ Physical shell replacement is tracked by suite #66 / #15. The opt-in installatio
 The typed blob probe consumes the shared Library (#68 / #16): real Electron file/directory reads, explicit reference/occupancy protection, retention, GC and three interruption/recovery points. Run PESUITE_BLOB_E2E=1 as described in AGENTS.md. This covers Library-owned resources; whole-product generation-store GC remains separate.
 
 Finite local closeout follows suite [#75](https://github.com/PerishCode/electron-suite/issues/75): real partial-directory GC interruption, vacated/confirming installation interruption, explicit recovery and retained audit materials. The installed probes use the published suite mechanisms. Envelope history and installation backups/downloads/executors remain long-term retained in this phase; GC of runtime CAS/views does not purge them. The next acceptance stage measures a continuous product journey, including disk cost.
+
+Carrier skeleton: `carriers/electron` contains the stable host and `src/capsule`, compiled independently to `dist/main.mjs` and `dist/capsule/index.mjs`. Shared application code stays in `apps/web` and `apps/daemon`. `carriers/standalone`, `carriers/docker` and `carriers/codexplugin` reserve empty `src`/`tests` trees; they have no runtime or packaging implementation.
+
+Carriers will share the product version and coordinated channel release. Existing workflows currently qualify Electron only. Multi-carrier build/release orchestration and standalone behavior remain pending boundary discussion; placeholder test discovery is not functional qualification.

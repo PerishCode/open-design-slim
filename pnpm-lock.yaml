@@ -12,14 +12,14 @@ importers:
         specifier: 2.6.4
         version: 2.6.4
       '@perishcode/cli':
-        specifier: 0.19.1
-        version: 0.19.1(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.19.2
+        version: 0.19.2(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/pack':
         specifier: 0.3.2
         version: 0.3.2(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/pipeline':
-        specifier: 0.5.2
-        version: 0.5.2(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.5.3
+        version: 0.5.3(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/release':
         specifier: 0.7.0
         version: 0.7.0
@@ -35,37 +35,6 @@ importers:
       electron:
         specifier: 41.3.0
         version: 41.3.0
-      esbuild:
-        specifier: 0.28.0
-        version: 0.28.0
-      typescript:
-        specifier: 7.0.2
-        version: 7.0.2
-      vitest:
-        specifier: 4.1.6
-        version: 4.1.6(@types/node@24.12.2)(vite@8.3.5(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(yaml@2.9.1))
-
-  apps/capsule:
-    dependencies:
-      '@perishcode/runtime':
-        specifier: 0.14.1
-        version: 0.14.1
-    devDependencies:
-      '@perishcode/pipeline':
-        specifier: 0.5.2
-        version: 0.5.2(electron-builder-squirrel-windows@26.8.1)
-      '@perishcode/protocol':
-        specifier: 0.4.0
-        version: 0.4.0
-      '@perishcode/release':
-        specifier: 0.7.0
-        version: 0.7.0
-      '@perishcode/sidecar':
-        specifier: 2.2.0
-        version: 2.2.0
-      '@types/node':
-        specifier: 24.12.2
-        version: 24.12.2
       esbuild:
         specifier: 0.28.0
         version: 0.28.0
@@ -104,11 +73,59 @@ importers:
         specifier: 4.1.6
         version: 4.1.6(@types/node@24.12.2)(vite@8.3.5(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(yaml@2.9.1))
 
-  apps/electron:
+  apps/web:
+    devDependencies:
+      '@perishcode/electron':
+        specifier: 0.14.1
+        version: 0.14.1(electron@41.3.0)
+      '@perishcode/release':
+        specifier: 0.7.0
+        version: 0.7.0
+      '@types/node':
+        specifier: 24.12.2
+        version: 24.12.2
+      esbuild:
+        specifier: 0.28.0
+        version: 0.28.0
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: 4.1.6
+        version: 4.1.6(@types/node@24.12.2)(vite@8.3.5(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(yaml@2.9.1))
+
+  carriers/codexplugin:
+    devDependencies:
+      '@types/node':
+        specifier: 24.12.2
+        version: 24.12.2
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: 4.1.6
+        version: 4.1.6(@types/node@24.12.2)(vite@8.3.5(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(yaml@2.9.1))
+
+  carriers/docker:
+    devDependencies:
+      '@types/node':
+        specifier: 24.12.2
+        version: 24.12.2
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: 4.1.6
+        version: 4.1.6(@types/node@24.12.2)(vite@8.3.5(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(yaml@2.9.1))
+
+  carriers/electron:
     dependencies:
       '@perishcode/electron':
         specifier: 0.14.1
         version: 0.14.1(electron@41.3.0)
+      '@perishcode/runtime':
+        specifier: 0.14.1
+        version: 0.14.1
     devDependencies:
       '@aws-sdk/client-s3':
         specifier: 3.1161.0
@@ -120,8 +137,8 @@ importers:
         specifier: 0.4.1
         version: 0.4.1
       '@perishcode/cli':
-        specifier: 0.19.1
-        version: 0.19.1(electron-builder-squirrel-windows@26.8.1)
+        specifier: 0.19.2
+        version: 0.19.2(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/distribution':
         specifier: 0.1.6
         version: 0.1.6
@@ -134,6 +151,9 @@ importers:
       '@perishcode/pack':
         specifier: 0.3.2
         version: 0.3.2(electron-builder-squirrel-windows@26.8.1)
+      '@perishcode/pipeline':
+        specifier: 0.5.3
+        version: 0.5.3(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/protocol':
         specifier: 0.4.0
         version: 0.4.0
@@ -143,9 +163,6 @@ importers:
       '@perishcode/release':
         specifier: 0.7.0
         version: 0.7.0
-      '@perishcode/runtime':
-        specifier: 0.14.1
-        version: 0.14.1
       '@perishcode/serve':
         specifier: 0.4.2
         version: 0.4.2
@@ -171,20 +188,11 @@ importers:
         specifier: 4.1.6
         version: 4.1.6(@types/node@24.12.2)(vite@8.3.5(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(yaml@2.9.1))
 
-  apps/web:
+  carriers/standalone:
     devDependencies:
-      '@perishcode/electron':
-        specifier: 0.14.1
-        version: 0.14.1(electron@41.3.0)
-      '@perishcode/release':
-        specifier: 0.7.0
-        version: 0.7.0
       '@types/node':
         specifier: 24.12.2
         version: 24.12.2
-      esbuild:
-        specifier: 0.28.0
-        version: 0.28.0
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -581,8 +589,8 @@ packages:
     resolution: {integrity: sha512-yrcByVxh5GmXQ6zzUVSS+/dNrzJ7f9GlvTtnnb2V00IpZH1e7Y0JWLwMRlB/X1s3dXPY7kUhx1PnWRXvqwfG9g==, tarball: https://npm.pkg.github.com/download/@perishcode/blob/0.4.1/12d169ce1b4c8e04394b2085ea1d18497d361e95}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/cli@0.19.1':
-    resolution: {integrity: sha512-LpBg2+1cDcPVQEF/pxp59NZofjDpX5IFlblpnyDmrPy4M5DIYsldIrhjdn6X0KnQRz64Xee+IYuINFtMDYo32w==, tarball: https://npm.pkg.github.com/download/@perishcode/cli/0.19.1/ec29cf9d14e4160089635327beb20e9dbd22174f}
+  '@perishcode/cli@0.19.2':
+    resolution: {integrity: sha512-zA4uQNhfEc0OJVA0+nD1ZznwyDx7XCpXmTW2506CKM6rtxRFgc1kGBCE8acDEMzmj9HhuQJqyb8T2O6kN6qweg==, tarball: https://npm.pkg.github.com/download/@perishcode/cli/0.19.2/911e2d293659e6ed2b9a82216ace7462722bdb3c}
     engines: {node: '>=24'}
     hasBin: true
 
@@ -616,8 +624,8 @@ packages:
     resolution: {integrity: sha512-3MwMHzn+3JWTD0mfpopfrPfvN0oQaAyF3tetDMXVsRHSrqsPuakNsJVGw6FGJZhJGmLelE4PLHG7RJFR8CFMng==, tarball: https://npm.pkg.github.com/download/@perishcode/pack/0.3.2/e0ebfcbb330661e73119a780e52e269121e18ff5}
     engines: {node: '>=24.0.0'}
 
-  '@perishcode/pipeline@0.5.2':
-    resolution: {integrity: sha512-oTpCwpeIlrbbZiiSINoAChUI1CXdRgyAeQAp1PENChZWRVodJmrpbg/wjK06pnfEOTRVYJK8btjbI4UsqRmO+A==, tarball: https://npm.pkg.github.com/download/@perishcode/pipeline/0.5.2/22b52616454b3ffffb4aac2a2c593e9d234567e2}
+  '@perishcode/pipeline@0.5.3':
+    resolution: {integrity: sha512-NXdBkzoOhDdorZVPN4c0mFTuGpz3fuTCP4ygFb8771hqA16ibIvpzPOG6cHx/BCeGfyspCYtfGwT6Mxkdcyfjg==, tarball: https://npm.pkg.github.com/download/@perishcode/pipeline/0.5.3/56029331cc1714e0cffcf70b60fb6656a210a4da}
     engines: {node: '>=24.0.0'}
 
   '@perishcode/protocol@0.4.0':
@@ -2611,12 +2619,12 @@ snapshots:
       '@perishcode/release': 0.7.0
       '@perishcode/sidecar': 2.2.0
 
-  '@perishcode/cli@0.19.1(electron-builder-squirrel-windows@26.8.1)':
+  '@perishcode/cli@0.19.2(electron-builder-squirrel-windows@26.8.1)':
     dependencies:
       '@perishcode/guard': 0.5.2
       '@perishcode/inspect': 0.3.2
       '@perishcode/pack': 0.3.2(electron-builder-squirrel-windows@26.8.1)
-      '@perishcode/pipeline': 0.5.2(electron-builder-squirrel-windows@26.8.1)
+      '@perishcode/pipeline': 0.5.3(electron-builder-squirrel-windows@26.8.1)
       '@perishcode/protocol': 0.4.0
       '@perishcode/release': 0.7.0
       '@perishcode/runtime': 0.14.1
@@ -2676,7 +2684,7 @@ snapshots:
       - electron-builder-squirrel-windows
       - supports-color
 
-  '@perishcode/pipeline@0.5.2(electron-builder-squirrel-windows@26.8.1)':
+  '@perishcode/pipeline@0.5.3(electron-builder-squirrel-windows@26.8.1)':
     dependencies:
       '@perishcode/automation': 0.1.0
       '@perishcode/guard': 0.5.2
