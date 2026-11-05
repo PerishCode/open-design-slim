@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type HostOptions, startElectron } from "@perishcode/electron";
 import { app, BrowserWindow } from "electron";
+import { type ResourceRequest, resourceProbe } from "./resources.js";
 
 const here = fileURLToPath(new URL(".", import.meta.url));
 const config = JSON.parse(readFileSync(join(here, "host.json"), "utf8")) as Pick<
@@ -59,7 +60,9 @@ void startElectron({
   inspect:
     process.env.PESUITE_INSPECT === "1" || process.env.PESUITE_FEED
       ? async (session, receipt, quit, snapshot) => {
+          const resources = resourceProbe(session);
           await session.expose<{
+            blobs: { input: ResourceRequest; output: unknown };
             native: { input: null; output: unknown };
             status: { input: unknown; output: unknown };
             echo: { input: unknown; output: unknown };
@@ -68,6 +71,7 @@ void startElectron({
             adapter: { input: { method: string; value: unknown }; output: unknown };
           }>("host", {
             handlers: {
+              blobs: resources.call,
               native: async () => {
                 if (process.env.PESUITE_DISTRIBUTION_PROBE !== "1") throw new Error("native probe is disabled");
                 const window = BrowserWindow.getAllWindows().find((w) =>
@@ -85,7 +89,7 @@ void startElectron({
               write: (value) => session.request("write", value),
             },
             lifecycle: {
-              initialize: async () => {},
+              initialize: resources.initialize,
               stop: async () => {
                 setImmediate(quit);
               },

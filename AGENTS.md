@@ -40,12 +40,13 @@
 | apps/daemon/tests/directory.test.ts                        | factory continuity and interrupted read-only inventory                        |
 | apps/daemon/tests/ownership.test.ts                        | registry ownership, normal replacement and real SIGKILL acceptance            |
 | apps/daemon/tests/control.test.ts                          | hosted control and resource lifecycle acceptance                              |
-| apps/electron/tests/factory.test.ts                        | published SDK same-root/channel isolation and version continuity              |
+| apps/electron/tests/resources/factory.test.ts              | published SDK same-root/channel isolation and version continuity              |
 | apps/electron/tests/capsule.test.ts                        | actual automatic Capsule handoff, compatible sets and failed-adapter recovery |
 | apps/electron/tests/interruption.test.ts                   | real installed activation SIGKILL, offline facts and preserved authority      |
 | apps/electron/tests/leaf.test.ts                           | actual minimal-impact activation, compatibility, failure and normal recovery  |
 | apps/electron/tests/discovery.test.ts                      | real installed automatic feed preparation, fault/retry and unchanged binding  |
 | apps/electron/tests/skeleton.test.ts                       | opt-in real unsigned installed lifecycle acceptance                           |
+| apps/electron/tests/resources                              | factory ownership and typed blob lifecycle probes                             |
 | apps/electron/tests/distribution                           | actual Silo metadata/native gates and same-path installation recovery         |
 | .artifacts                                                 | generated seed, package, installed copies and execution receipts              |
 
@@ -171,3 +172,9 @@ The /s3 package entry owns publication; product tests only create fixtures and i
 
 Suite #66 under #15 owns the first physical macOS replacement increment. PESUITE_INSTALLATION=1 opts the skeleton host into the published installer adapter; normal skeleton runs keep their existing update probe behavior. The build copies installer.workerAsset() to dist/worker.mjs and uses electron/assets nodeBanner. All coordinator, filesystem, participant and restart behavior belongs to suite.
 Run `PESUITE_INSTALLATION_E2E=1 PESUITE_SILO_ENDPOINT=http://127.0.0.1:<port> pnpm --filter @perishcode/slim-electron exec vitest run -c vitest.config.ts tests/distribution/installation.test.ts` separately from other native tests that rebuild dist. It uses actual Silo metadata and unsigned macOS apps, old namespaces sharing one installed path, retained runtime data, an independent coordinator, same-path replacement, and explicit SIGKILL recovery at displaced/installed boundaries. Receipts remain under .artifacts/installation/<run>. PESUITE_INSTALLATION_CASE selects a single diagnostic case; default covers both interruption points and normal completion. Preserve interrupted authorities and use the sidecar recovery API, then installer.resume/arm. No compatibility layer or ownership-file deletion is permitted. Signing and other-platform installation remain separate acceptance.
+
+### Typed blob Library acceptance
+
+Suite #68 under #16 introduces the dedicated blob Library. PESUITE_BLOB_PROBE=1 only adds the caller-owned host/blobs inspect projection. Its actual hosted Context initializes Session.blobLibrary; the suite owns paths, retrieval, verification, materialization, occupancy, scheduling and GC. resources.ts only declares probe operations and reads the bytes under a current Use. It creates no Capsule sidecar identity.
+Run `PESUITE_BLOB_E2E=1 pnpm --filter @perishcode/slim-electron exec vitest run -c vitest.config.ts tests/resources/blob.test.ts` separately from other native flags. It packages a real unsigned macOS app, serves fixture bytes through managed Sources, verifies file/directory reads by the actual host PID, current/prepared/recovery protection, two logical epochs under one real host subject, retention, user-data retention and loading/materialized/deleting SIGKILL recovery. The materialized case blocks the source to verify cached-byte reuse after recovery. Evidence is .artifacts/blob/<run>/receipt.json. Failed/interrupted authorities remain for inspection.
+Reference publication is explicit in this increment. Existing generation CAS and automatic update-root propagation remain #16 work. A periodic library sweep defaults to 60 seconds and retention to one hour; the probe uses shorter explicit policy. Hold each Use through the actual read/stream/process lifetime, then release it. Failed or unknown consumers stay protective. Never use elapsed time to clear occupancy or delete authority. The resources test folder groups factory and blob resource probes under a bounded guard pattern.
